@@ -1,0 +1,4248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>比地数据接口服务 - 企业数据API开放平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        /* 顶部导航 */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 100;
+        }
+        
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .header-back {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .header-myapis {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 4px 8px;
+            white-space: nowrap;
+        }
+        
+        .header-myapis:hover {
+            opacity: 0.8;
+        }
+        
+        .header-myapis:active {
+            opacity: 0.6;
+        }
+        
+        /* 搜索区域 */
+        .search-section {
+            position: fixed;
+            top: 56px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            padding: 12px 16px 16px;
+            z-index: 99;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border-radius: 24px;
+            padding: 4px 4px 4px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            padding: 10px 0;
+            font-size: 15px;
+            outline: none;
+            background: transparent;
+        }
+        
+        .search-btn {
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 分类标签 */
+        .category-section {
+            position: fixed;
+            top: 120px;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 16px 0;
+            z-index: 98;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .category-scroll {
+            display: flex;
+            align-items: center;
+            overflow-x: auto;
+            padding: 4px 16px;
+            gap: 12px;
+            scrollbar-width: none;
+            min-height: 36px;
+        }
+        
+        .category-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .category-tag {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+        
+        .category-tag.active {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: #fff;
+        }
+        
+        /* 主内容 */
+        .main-content {
+            padding-top: 200px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+        
+        /* 统计 */
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+        
+        .stats-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .stats-count {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .stats-count span {
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        /* 接口列表 */
+        .api-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .api-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .api-card:active {
+            background: #f9f9f9;
+        }
+        
+        .api-card-content {
+            pointer-events: none;
+        }
+        
+        .api-card .api-actions {
+            pointer-events: auto;
+        }
+        
+        /* 同步PC端样式 */
+        .api-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .api-title-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .api-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .api-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .api-tags {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .api-tag {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .tag-method {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .tag-price {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        
+        .tag-id {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-size: 10px;
+        }
+        
+        /* 搜索高亮样式 */
+        .highlight-keyword {
+            color: #f5222d;
+            font-weight: 600;
+            background: #fff2f0;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        
+        .api-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .api-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid #f5f5f5;
+        }
+        
+        .api-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .api-meta i {
+            color: #999;
+            font-size: 11px;
+        }
+        
+        .api-meta span {
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .api-price-display {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+        }
+        
+        .api-price-display .api-price-label {
+            color: #666;
+        }
+        
+        .api-price-display .api-price-value {
+            color: #ff4d4f;
+            font-weight: 600;
+        }
+        
+        .api-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .api-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .api-btn.detail {
+            background: #fff;
+            border: 1px solid #d9d9d9;
+            color: #666;
+            min-width: 80px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .api-btn.apply {
+            background: #1890ff;
+            color: #fff;
+            min-width: 80px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .api-btn.test {
+            background: #ffc107;
+            color: #333;
+            min-width: 80px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 加载更多 */
+        .load-more {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .load-more-btn {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            padding: 12px 32px;
+            border-radius: 24px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        /* 我的接口页面样式 - 同步PC端 */
+        .myapis-page {
+            padding-top: 60px;
+            padding-bottom: 24px;
+        }
+        
+        /* 统计概览 - 2x2网格 */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-card-mobile {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .stat-header-mobile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .stat-title-mobile {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .stat-icon-mobile {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .stat-icon-mobile.blue { background: #e6f7ff; color: #1890ff; }
+        .stat-icon-mobile.green { background: #f6ffed; color: #52c41a; }
+        .stat-icon-mobile.orange { background: #fff7e6; color: #fa8c16; }
+        .stat-icon-mobile.red { background: #fff1f0; color: #f5222d; }
+        
+        .stat-value-mobile {
+            font-size: 22px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .stat-actions-mobile {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+        }
+        
+        .stat-actions-mobile span {
+            color: #1890ff;
+            cursor: pointer;
+        }
+        
+        .stat-actions-mobile span:last-child {
+            color: #666;
+        }
+        
+        .stat-trend-mobile {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* API密钥卡片 */
+        .api-key-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .api-key-header-mobile {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .api-key-title-mobile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .api-key-title-mobile i {
+            color: #1890ff;
+        }
+        
+        .api-key-actions-mobile {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .api-key-actions-mobile button {
+            padding: 6px 12px;
+            border: 1px solid #e8e8e8;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .api-key-actions-mobile button:last-child {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+        
+        .api-key-value-mobile {
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow-x: auto;
+        }
+        
+        .api-key-value-mobile span {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .api-key-meta-mobile {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .api-key-meta-mobile span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .api-flow-mobile {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+            padding-top: 12px;
+            border-top: 1px dashed #e8e8e8;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .api-flow-mobile span:first-child {
+            font-weight: 500;
+            color: #333;
+            margin-right: 4px;
+        }
+        
+        .api-flow-mobile i {
+            color: #ccc;
+            font-size: 10px;
+        }
+        
+        /* 我的接口区块 */
+        .myapis-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .myapis-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .myapis-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .myapis-section-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+        
+        .myapis-section-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-export, .btn-apply-new {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-export {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .btn-apply-new {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: #fff;
+        }
+        
+        .view-all-link {
+            color: #1890ff;
+            font-size: 13px;
+            text-decoration: none;
+        }
+        
+        /* 表格样式 - 横向滚动 */
+        .myapis-table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* 最近调用记录表格 - 固定三列布局 */
+        .records-table-container {
+            overflow-x: visible;
+        }
+        
+        .myapis-table {
+            width: 100%;
+            min-width: 700px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            table-layout: fixed;
+        }
+        
+        .records-table th,
+        .records-table td {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .records-table th:first-child,
+        .records-table td:first-child {
+            width: 25%;
+        }
+        
+        .records-table th:nth-child(2),
+        .records-table td:nth-child(2) {
+            width: 50%;
+        }
+        
+        .records-table th:nth-child(3),
+        .records-table td:nth-child(3) {
+            width: 25%;
+            text-align: right;
+        }
+        
+        .myapis-table th, .records-table th {
+            background: #f8fafc;
+            padding: 12px 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        
+        .myapis-table td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        
+        .records-table td {
+            padding: 14px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        .myapis-table tbody tr:last-child td,
+        .records-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .my-api-name {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .my-api-name i {
+            color: #1890ff;
+            font-size: 14px;
+        }
+        
+        /* 我的接口卡片列表 */
+        .myapi-card-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .myapi-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .myapi-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        
+        .myapi-card-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .myapi-card-icon i {
+            font-size: 18px;
+            color: #1890ff;
+        }
+        
+        .myapi-card-title {
+            flex: 1;
+        }
+        
+        .myapi-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .myapi-card-id {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .myapi-card-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        
+        .myapi-card-info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .myapi-card-info-label {
+            color: #999;
+        }
+        
+        .myapi-card-info-value {
+            color: #333;
+        }
+        
+        .myapi-card-info-value.price {
+            color: #ff4d4f;
+        }
+        
+        .myapi-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px solid #f5f5f5;
+        }
+        
+        .myapi-card-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .myapi-card-btn.close {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .myapi-card-btn.test {
+            background: #ffc107;
+            color: #333;
+        }
+        
+        .my-api-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .my-api-tag.method {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .my-api-tag.status {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .my-api-tag.status.disabled {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        
+        .my-api-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .my-api-link {
+            color: #1890ff;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        
+        .my-api-link.close {
+            color: #999;
+        }
+        
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+        
+        .status-tag.success {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        
+        .status-tag.fail {
+            background: #fff1f0;
+            color: #f5222d;
+        }
+        
+        /* 空状态 */
+        .myapis-empty {
+            text-align: center;
+            padding: 24px 20px;
+            color: #999;
+        }
+        
+        .myapis-empty i {
+            font-size: 40px;
+            color: #d9d9d9;
+            margin-bottom: 12px;
+        }
+        
+        .myapis-empty p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .myapis-empty span {
+            font-size: 12px;
+            color: #999;
+            display: block;
+            margin-bottom: 16px;
+        }
+        
+        .myapis-apply-btn {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            box-shadow: 0 2px 8px rgba(24,144,255,0.3);
+            transition: all 0.3s;
+        }
+        
+        .myapis-apply-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24,144,255,0.4);
+        }
+        
+        .myapis-apply-btn i {
+            font-size: 10px;
+        }
+        
+
+        /* 弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-sheet {
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: #e5e5e5;
+            border-radius: 2px;
+            margin: 12px auto 16px;
+        }
+        
+        /* 详情弹窗 */
+        .detail-content {
+            padding: 0 20px 24px;
+        }
+        
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detail-icon i {
+            font-size: 24px;
+            color: #fff;
+        }
+        
+        .detail-title-wrap {
+            flex: 1;
+        }
+        
+        .detail-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .detail-id {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .detail-section {
+            margin-bottom: 16px;
+        }
+        
+        .detail-label {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+        
+        .detail-value {
+            font-size: 15px;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .detail-path {
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #666;
+            word-break: break-all;
+        }
+        
+        .detail-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+        
+        .detail-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .detail-btn.cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .detail-btn.apply {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: #fff;
+        }
+        
+        .detail-btn.test {
+            background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+            color: #fff;
+        }
+        
+        /* 申请弹窗 - 同步PC端 */
+        .apply-content {
+            padding: 0 20px 28px;
+        }
+        
+        .apply-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .apply-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .apply-close {
+            width: 36px;
+            height: 36px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .apply-close i {
+            font-size: 18px;
+            color: #999;
+        }
+        
+        .apply-notice {
+            background: #e6f7ff;
+            border: 1px solid #91d5ff;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .apply-notice i {
+            font-size: 20px;
+            color: #1890ff;
+        }
+        
+        .apply-notice-text {
+            font-size: 15px;
+            color: #333;
+        }
+        
+        .apply-notice-text strong {
+            color: #1890ff;
+        }
+        
+        /* 价格信息卡片 */
+        .apply-price-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .apply-price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .apply-price-row:last-child {
+            margin-bottom: 0;
+            padding-top: 12px;
+            border-top: 1px solid #e8e8e8;
+        }
+        
+        .apply-price-label {
+            color: #666;
+        }
+        
+        .apply-price-value {
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .apply-price-value.red {
+            color: #f5222d;
+        }
+        
+        .apply-price-value.green {
+            color: #52c41a;
+        }
+        
+        .apply-price-value.blue {
+            color: #1890ff;
+        }
+        
+        .form-group {
+            margin-bottom: 18px;
+        }
+        
+        .form-label {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            font-weight: 500;
+        }
+        
+        .form-label .required {
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            background: #fafafa;
+        }
+        
+        .form-input:focus {
+            border-color: #1890ff;
+            background: #fff;
+        }
+        
+        textarea.form-input {
+            resize: none;
+            min-height: 80px;
+        }
+        
+        .apply-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .apply-footer i {
+            color: #1890ff;
+        }
+        
+        .apply-footer .phone {
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        .apply-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* 申请确认弹窗 - 简洁版 - 页面居中 */
+        .auth-dialog {
+            background: #fff;
+            border-radius: 16px;
+            width: 300px;
+            padding: 28px 24px 20px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        .auth-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .auth-message {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 28px;
+            line-height: 1.6;
+            padding: 0 8px;
+        }
+        
+        .auth-message span {
+            color: #1890ff;
+            font-weight: 600;
+        }
+        
+        .auth-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 0;
+        }
+        
+        .auth-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .auth-btn.cancel {
+            color: #666;
+            background: #f5f5f5;
+        }
+        
+        .auth-btn.cancel:hover {
+            background: #e8e8e8;
+        }
+        
+        .auth-btn.confirm {
+            color: #fff;
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(24,144,255,0.3);
+        }
+        
+        .auth-btn.confirm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(24,144,255,0.4);
+        }
+        
+        /* 测试接口弹窗 */
+        .test-modal-content {
+            padding: 20px;
+        }
+        
+        .test-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .test-modal-icon {
+            width: 40px;
+            height: 40px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .test-modal-icon i {
+            color: #16a34a;
+            font-size: 18px;
+        }
+        
+        .test-modal-title {
+            flex: 1;
+        }
+        
+        .test-modal-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .test-modal-title p {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .test-modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .test-section {
+            margin-bottom: 20px;
+        }
+        
+        .test-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .test-section-title i {
+            color: #1890ff;
+        }
+        
+        .test-param-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .test-param-name {
+            font-size: 13px;
+            color: #666;
+            min-width: 80px;
+        }
+        
+        .test-param-required {
+            color: #ff4d4f;
+        }
+        
+        .test-param-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+        
+        .test-param-input:focus {
+            border-color: #1890ff;
+        }
+        
+        .test-send-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 16px 0;
+            transition: all 0.3s;
+        }
+        
+        .test-send-btn:disabled {
+            background: #91caff;
+            cursor: not-allowed;
+        }
+        
+        .test-send-btn .loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .test-tip {
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .test-tip-title {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .test-tip-title i {
+            color: #1890ff;
+            margin-right: 4px;
+        }
+        
+        .test-balance {
+            color: #52c41a;
+            font-weight: 600;
+        }
+        
+        .test-code-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .test-code-tab {
+            padding: 6px 12px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .test-code-tab.active {
+            background: #1890ff;
+            color: #fff;
+        }
+        
+        .test-response-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .test-response-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .test-response-meta i {
+            color: #1890ff;
+        }
+        
+        /* 调用记录弹窗 */
+        .records-modal-sheet {
+            max-height: 90vh;
+        }
+        
+        .records-modal-content {
+            padding: 20px;
+        }
+        
+        .records-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .records-modal-icon {
+            width: 40px;
+            height: 40px;
+            background: #fff7ed;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .records-modal-icon i {
+            color: #ea580c;
+            font-size: 18px;
+        }
+        
+        .records-modal-title {
+            flex: 1;
+        }
+        
+        .records-modal-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .records-modal-title p {
+            font-size: 13px;
+            color: #999;
+        }
+        
+        .records-modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        /* 移动端筛选器样式 - 横向标签 */
+        .records-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 12px 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .records-filter-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            background: #f5f5f5;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .records-filter-tag:active {
+            background: #e8e8e8;
+        }
+        
+        .records-filter-tag i {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .records-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .record-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .record-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .record-item-time {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .record-item-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+        }
+        
+        .record-item-status.success {
+            color: #52c41a;
+        }
+        
+        .record-item-status.fail {
+            color: #f5222d;
+        }
+        
+        .record-item-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        
+        .record-item-params {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .record-item-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .record-item-cost {
+            color: #f5222d;
+            font-weight: 500;
+        }
+        
+        /* 充值弹窗样式 */
+        .recharge-modal-sheet {
+            max-height: 85vh;
+        }
+        
+        .recharge-modal-content {
+            padding: 16px 20px 24px;
+        }
+        
+        .recharge-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .recharge-modal-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #fff2f0 0%, #ffccc7 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .recharge-modal-icon i {
+            color: #f5222d;
+            font-size: 18px;
+        }
+        
+        .recharge-modal-title {
+            flex: 1;
+        }
+        
+        .recharge-modal-title h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 2px 0;
+        }
+        
+        .recharge-modal-title p {
+            font-size: 11px;
+            color: #999;
+            margin: 0;
+        }
+        
+        .recharge-modal-close {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .recharge-packages {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .recharge-package {
+            border: 2px solid #e8e8e8;
+            border-radius: 12px;
+            padding: 14px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: #fff;
+        }
+        
+        .recharge-package:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .recharge-package.selected {
+            border-color: #f5222d;
+            background: linear-gradient(135deg, #fff2f0 0%, #fff8f7 100%);
+            box-shadow: 0 4px 16px rgba(245,34,45,0.15);
+        }
+        
+        .recharge-package.recommended {
+            border-color: #f5222d;
+            background: linear-gradient(135deg, #fff8f7 0%, #fff 100%);
+        }
+        
+        .recharge-package-badge {
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #f5222d 0%, #ff4d4f 100%);
+            color: #fff;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(245,34,45,0.3);
+        }
+        
+        .recharge-package-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .recharge-package-get {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .recharge-package-gift {
+            font-size: 10px;
+            color: #f5222d;
+            background: linear-gradient(135deg, #fff2f0 0%, #ffe6e6 100%);
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .recharge-custom {
+            margin-bottom: 16px;
+            padding: 14px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f0f5ff 100%);
+            border-radius: 12px;
+            border: 1px solid #e6f0ff;
+        }
+        
+        .recharge-custom-label {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .recharge-custom-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        
+        .recharge-custom-input span {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .recharge-custom-input input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .recharge-custom-input input:focus {
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.1);
+        }
+        
+        .recharge-custom-hint {
+            font-size: 11px;
+            color: #999;
+            padding-left: 26px;
+        }
+        
+        .recharge-payment {
+            margin-bottom: 16px;
+        }
+        
+        .recharge-payment-label {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .recharge-payment-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .recharge-payment-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 10px 8px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+        }
+        
+        .recharge-payment-option:hover {
+            border-color: #d9d9d9;
+        }
+        
+        .recharge-payment-option.active {
+            border-color: #1890ff;
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%);
+            box-shadow: 0 2px 6px rgba(24,144,255,0.15);
+        }
+        
+        .recharge-payment-option i {
+            font-size: 18px;
+        }
+        
+        .recharge-payment-option[data-type="wechat"] i {
+            color: #07c160;
+        }
+        
+        .recharge-payment-option[data-type="alipay"] i {
+            color: #1677ff;
+        }
+        
+        .recharge-payment-option span {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .recharge-amount {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #fff2f0 0%, #fff8f7 100%);
+            border-radius: 10px;
+            border: 1px solid #ffccc7;
+        }
+        
+        .recharge-amount span:first-child {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .recharge-amount span:last-child {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f5222d;
+        }
+        
+        .recharge-pay-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #f5222d 0%, #ff4d4f 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            box-shadow: 0 3px 12px rgba(245,34,45,0.3);
+            transition: all 0.3s;
+        }
+        
+        .recharge-pay-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(245,34,45,0.4);
+        }
+        
+        .recharge-pay-btn:active {
+            transform: translateY(0);
+        }
+        
+        .recharge-tips {
+            text-align: center;
+        }
+        
+        .recharge-tips div {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        
+        .recharge-tips i {
+            margin-right: 3px;
+            font-size: 10px;
+        }
+        
+        /* 充值记录列表 */
+        .recharge-records-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .recharge-record-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        
+        .recharge-record-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .recharge-record-date {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .recharge-record-amount {
+            font-size: 14px;
+            color: #f5222d;
+            font-weight: 600;
+        }
+        
+        .recharge-record-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .recharge-record-detail {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .recharge-record-detail span {
+            color: #999;
+        }
+        
+        .recharge-record-detail.gift span {
+            color: #52c41a;
+        }
+        
+        /* 支付成功弹窗 */
+        .payment-success-sheet {
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .payment-success-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            width: 90%;
+            max-width: 320px;
+        }
+        
+        .payment-success-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #52c41a 0%, #95de64 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+        
+        .payment-success-icon i {
+            font-size: 32px;
+            color: #fff;
+        }
+        
+        .payment-success-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 8px 0;
+        }
+        
+        .payment-success-content > p {
+            font-size: 14px;
+            color: #666;
+            margin: 0 0 20px 0;
+        }
+        
+        .payment-success-content > p span {
+            color: #f5222d;
+            font-weight: 600;
+        }
+        
+        .payment-success-detail {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .payment-success-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        
+        .payment-success-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .payment-success-row.total {
+            border-top: 1px dashed #d9d9d9;
+            padding-top: 10px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        .payment-success-btn {
+            width: 100%;
+            padding: 12px;
+            background: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .records-page-btn {
+            padding: 6px 12px;
+            border: 1px solid #e8e8e8;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .records-page-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .records-page-btn.active {
+            background: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+        
+        /* 客服弹窗 */
+        .contact-content {
+            padding: 0 20px 28px;
+            text-align: center;
+        }
+        
+        .contact-icon {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .contact-icon i {
+            font-size: 32px;
+            color: #1890ff;
+        }
+        
+        .contact-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .contact-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+        
+        .contact-phone-box {
+            background: #f5f7fa;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .contact-phone-label {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        
+        .contact-phone-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1890ff;
+        }
+        
+        .contact-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .contact-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .contact-btn.cancel {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .contact-btn.confirm {
+            background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-back" id="headerBack" onclick="goBack()" style="opacity: 0; pointer-events: none;">
+            <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="header-title" id="headerTitle">API接口服务</div>
+        <div class="header-myapis" id="headerMyApis" onclick="showMyApisPage()">
+            我的接口
+        </div>
+    </header>
+
+    <!-- 搜索区域 -->
+    <div class="search-section" id="searchSection">
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索接口名称、ID或关键词...">
+            <button class="search-btn" onclick="searchAPI()">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 分类标签 -->
+    <div class="category-section" id="categorySection">
+        <div class="category-scroll" id="categoryList">
+            <!-- 动态生成 -->
+        </div>
+    </div>
+
+    <!-- 主内容 - 首页 -->
+    <main class="main-content" id="homePage">
+        <!-- 统计 -->
+        <div class="stats-bar">
+            <div class="stats-title" id="statsTitle">全部接口</div>
+            <div class="stats-count">共 <span id="statsCount">0</span> 个接口</div>
+        </div>
+
+        <!-- 接口列表 -->
+        <div class="api-list" id="apiList">
+            <!-- 动态生成 -->
+        </div>
+
+        <!-- 加载更多 -->
+        <div class="load-more">
+            <button class="load-more-btn" onclick="loadMore()">加载更多</button>
+        </div>
+    </main>
+
+    <!-- 我的接口页面 -->
+    <main class="main-content myapis-page" id="myApisPage" style="display: none;">
+        <!-- 统计概览 -->
+        <div class="stats-overview">
+            <div class="stat-card-mobile">
+                <div class="stat-header-mobile">
+                    <span class="stat-title-mobile">接口余额</span>
+                    <div class="stat-icon-mobile blue">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                </div>
+                <div class="stat-value-mobile" id="balanceAmount">¥0.00</div>
+                <div class="stat-actions-mobile">
+                    <span onclick="showRechargeModal()">充值</span>
+                    <span onclick="showRechargeRecords()">记录</span>
+                </div>
+            </div>
+            <div class="stat-card-mobile">
+                <div class="stat-header-mobile">
+                    <span class="stat-title-mobile">已申请接口</span>
+                    <div class="stat-icon-mobile green">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                </div>
+                <div class="stat-value-mobile"><span id="myApiCount">0</span> <span style="font-size: 12px; color: #999;">个</span></div>
+                <div class="stat-trend-mobile">可使用</div>
+            </div>
+            <div class="stat-card-mobile">
+                <div class="stat-header-mobile">
+                    <span class="stat-title-mobile">本月调用量</span>
+                    <div class="stat-icon-mobile orange">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                </div>
+                <div class="stat-value-mobile" id="monthlyCalls">0</div>
+                <div class="stat-trend-mobile" id="monthlyCallsTrend">较上月 --</div>
+            </div>
+            <div class="stat-card-mobile">
+                <div class="stat-header-mobile">
+                    <span class="stat-title-mobile">本月消费</span>
+                    <div class="stat-icon-mobile red">
+                        <i class="fas fa-yen-sign"></i>
+                    </div>
+                </div>
+                <div class="stat-value-mobile" id="monthlyCost">¥0.00</div>
+                <div class="stat-trend-mobile" id="monthlyCostTrend">较上月 --</div>
+            </div>
+        </div>
+
+        <!-- API密钥 -->
+        <div class="api-key-card">
+            <div class="api-key-header-mobile">
+                <div class="api-key-title-mobile">
+                    <i class="fas fa-key"></i>
+                    API密钥
+                </div>
+                <div class="api-key-actions-mobile">
+                    <button onclick="resetApiKey()">重置</button>
+                    <button onclick="copyApiKey()">复制</button>
+                </div>
+            </div>
+            <div class="api-key-value-mobile">
+                <span id="apiKeyText">bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz</span>
+            </div>
+            <div class="api-key-meta-mobile">
+                <span><i class="fas fa-circle" style="color: #52c41a; font-size: 6px;"></i> 状态: 正常</span>
+                <span><i class="fas fa-calendar"></i> 创建: 2026-01-15</span>
+                <span><i class="fas fa-chart-line"></i> 调用: <span id="totalCalls">0</span></span>
+            </div>
+            <!-- 接口调用流程 - 与PC端一致 -->
+            <div class="api-flow-mobile">
+                <span>接口调用流程：</span>
+                <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 申请接口</span>
+                <i class="fas fa-angle-right"></i>
+                <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 调试测试</span>
+                <i class="fas fa-angle-right"></i>
+                <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 接口余额充值</span>
+                <i class="fas fa-angle-right"></i>
+                <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 复制密钥</span>
+                <i class="fas fa-angle-right"></i>
+                <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 正式调用</span>
+            </div>
+        </div>
+
+        <!-- 我的接口列表 - 卡片式布局 -->
+        <div class="myapis-section">
+            <div class="myapis-section-header">
+                <div>
+                    <h3 class="myapis-section-title">我申请的接口</h3>
+                </div>
+            </div>
+
+            <!-- 接口卡片列表 -->
+            <div class="myapi-card-list" id="myApiCardList">
+                <!-- 动态生成 -->
+            </div>
+
+            <!-- 空状态 -->
+            <div class="myapis-empty" id="myApisEmpty" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>暂无已申请的接口</p>
+                <span>您还没有申请任何接口，快去申请吧</span>
+                <button class="myapis-apply-btn" onclick="goBack()">
+                    申请接口
+                </button>
+            </div>
+        </div>
+
+        <!-- 最近调用记录 -->
+        <div class="myapis-section">
+            <div class="myapis-section-header">
+                <h3 class="myapis-section-title">最近调用记录</h3>
+                <a href="#" class="view-all-link" onclick="showAllRecords(); return false;">查看全部</a>
+            </div>
+            <div class="records-table-container">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>调用时间</th>
+                            <th>接口名称</th>
+                            <th>费用</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsTableBody">
+                        <!-- 动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+
+
+    <!-- 接口详情弹窗 -->
+    <div class="modal-overlay" id="detailModal" onclick="hideDetailModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="detail-content">
+                <div class="detail-header">
+                    <div class="detail-icon">
+                        <i class="fas fa-plug"></i>
+                    </div>
+                    <div class="detail-title-wrap">
+                        <div class="detail-name" id="detailName">--</div>
+                        <div class="detail-id" id="detailId">--</div>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">所属分类</div>
+                    <div class="detail-value" id="detailCategory">--</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">请求方式</div>
+                    <div class="detail-value" id="detailMethod">GET</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">接口描述</div>
+                    <div class="detail-value" id="detailDesc">--</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">接口价格</div>
+                    <div class="detail-value" id="detailPrice" style="color: #f5222d; font-weight: 600;">--</div>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">接口地址</div>
+                    <div class="detail-path" id="detailPath">--</div>
+                </div>
+                <div class="detail-actions">
+                    <button class="detail-btn cancel" onclick="hideDetailModal()">关闭</button>
+                    <button class="detail-btn test" onclick="testApiFromDetail()">在线测试</button>
+                    <button class="detail-btn apply" onclick="showApplyModalFromDetail()">申请接口</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 申请确认弹窗 - 简洁版 -->
+    <div class="modal-overlay" id="authModal" onclick="hideAuthModal(event)">
+        <div class="auth-dialog" onclick="event.stopPropagation()">
+            <div class="auth-title">申请API</div>
+            <div class="auth-message">确定要申请【<span id="authApiName">--</span>】API吗？</div>
+            <div class="auth-actions">
+                <button class="auth-btn cancel" onclick="hideAuthModal()">取消</button>
+                <button class="auth-btn confirm" onclick="confirmAuth()">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 联系客服弹窗 -->
+    <div class="modal-overlay" id="contactModal" onclick="hideContactModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="contact-content">
+                <div class="contact-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="contact-title">联系客服</h3>
+                <p class="contact-desc">如需申请API接口，请拨打客服电话咨询</p>
+                <div class="contact-phone-box">
+                    <div class="contact-phone-label">客服热线</div>
+                    <div class="contact-phone-number">400-999-4928</div>
+                </div>
+                <div class="contact-actions">
+                    <button class="contact-btn cancel" onclick="hideContactModal()">取消</button>
+                    <a href="tel:400-999-4928" class="contact-btn confirm" style="text-decoration: none; text-align: center;">立即拨打</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 测试接口弹窗 -->
+    <div class="modal-overlay" id="testModal" onclick="hideTestModal(event)">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="test-modal-content">
+                <div class="test-modal-header">
+                    <div class="test-modal-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="test-modal-title">
+                        <h3>API Explorer - 在线调试</h3>
+                        <p id="testModalSubtitle">企业工商基本信息查询</p>
+                    </div>
+                    <button class="test-modal-close" onclick="hideTestModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="test-modal-body">
+                    <!-- 请求参数 -->
+                    <div class="test-section">
+                        <div class="test-section-title">
+                            <i class="fas fa-sliders-h"></i>
+                            请求参数
+                        </div>
+                        <div class="test-param-row">
+                            <span class="test-param-name">keyword <span class="test-param-required">*</span></span>
+                            <input type="text" class="test-param-input" id="testKeyword" placeholder="企业名称" value="阿里巴巴">
+                        </div>
+                        <div class="test-param-row">
+                            <span class="test-param-name">appkey <span class="test-param-required">*</span></span>
+                            <input type="text" class="test-param-input" id="testAppkey" value="bidi_ak_2vN8xK3m..." disabled style="background: #f5f5f5;">
+                        </div>
+                        <button class="test-send-btn" onclick="sendTestRequest()">
+                            <i class="fas fa-paper-plane"></i> 发送请求
+                        </button>
+                        <!-- 提示区域 - 请求成功后显示代码示例 -->
+                        <div class="test-tip" id="testTipSection">
+                            <div class="test-tip-title"><i class="fas fa-info-circle"></i> 提示</div>
+                            <div>• 在线测试会真实扣费，请谨慎使用</div>
+                            <div>• 当前余额: <span class="test-balance">¥2,580.00</span></div>
+                        </div>
+                        <!-- 请求成功代码示例 - 默认隐藏 -->
+                        <div class="test-code-example" id="codeExampleSection" style="display: none;">
+                            <div class="test-section-title" style="margin-bottom: 12px;">
+                                <i class="fas fa-check-circle" style="color: #52c41a;"></i>
+                                请求成功
+                            </div>
+                            <div class="test-code-tabs">
+                                <div class="test-code-tab active" onclick="switchCodeTab(this, 'curl')">cURL</div>
+                                <div class="test-code-tab" onclick="switchCodeTab(this, 'python')">Python</div>
+                                <div class="test-code-tab" onclick="switchCodeTab(this, 'java')">Java</div>
+                                <div class="test-code-tab" onclick="switchCodeTab(this, 'php')">PHP</div>
+                                <div class="test-code-tab" onclick="switchCodeTab(this, 'nodejs')">Node.js</div>
+                            </div>
+                            <div class="test-response-block" id="codeExampleBlock" style="font-size: 11px; line-height: 1.6; margin-top: 12px;">curl -X GET "https://api.bidizhaobiao.com/v1/company/base?keyword=阿里巴巴" \
+  -H "Authorization: Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz" \
+  -H "Content-Type: application/json"</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 响应结果 -->
+                    <div class="test-section">
+                        <div class="test-section-title">
+                            <i class="fas fa-code"></i>
+                            响应结果
+                        </div>
+                        <div class="test-code-tabs">
+                            <div class="test-code-tab active" onclick="switchTestTab(this, 'json')">JSON</div>
+                            <div class="test-code-tab" onclick="switchTestTab(this, 'headers')">Headers</div>
+                        </div>
+                        <div class="test-response-block" id="testResponseBlock">{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "id": 9519792,
+    "name": "阿里巴巴集团控股有限公司",
+    "legalPersonName": "张勇",
+    "regCapital": "100000万美元",
+    "estiblishTime": "1999-09-09",
+    "regStatus": "存续"
+  },
+  "cost": 0.05
+}</div>
+                        <div class="test-response-meta">
+                            <span><i class="fas fa-yen-sign"></i> 费用: <span id="testCost">¥0.05</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调用记录弹窗 -->
+    <div class="modal-overlay" id="recordsModal" onclick="hideRecordsModal(event)">
+        <div class="modal-sheet records-modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="records-modal-content">
+                <div class="records-modal-header">
+                    <div class="records-modal-icon">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <div class="records-modal-title">
+                        <h3>接口调用记录</h3>
+                        <p>查看您的所有接口调用历史</p>
+                    </div>
+                    <button class="records-modal-close" onclick="hideRecordsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="records-modal-body">
+                    <!-- 筛选器 - 横向标签样式 -->
+                    <div class="records-filter-bar">
+                        <div class="records-filter-tag" onclick="showDatePicker()">
+                            <span id="dateFilterText">近三个月</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="records-filter-tag" onclick="showApiPicker()">
+                            <span id="apiFilterText">全部接口</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="records-filter-tag" onclick="showStatusPicker()">
+                            <span id="statusFilterText">全部状态</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <input type="hidden" id="recordStartDate" value="2026-01-01">
+                        <input type="hidden" id="recordEndDate" value="2026-01-15">
+                        <input type="hidden" id="recordApiFilter" value="all">
+                        <input type="hidden" id="recordStatusFilter" value="all">
+                    </div>
+                    
+                    <!-- 记录列表 -->
+                    <div class="records-list" id="recordsList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值弹窗 -->
+    <div class="modal-overlay" id="rechargeModal" onclick="hideRechargeModal(event)">
+        <div class="modal-sheet recharge-modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="recharge-modal-content">
+                <div class="recharge-modal-header">
+                    <div class="recharge-modal-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="recharge-modal-title">
+                        <h3>充值中心</h3>
+                        <p>选择适合您的套餐</p>
+                    </div>
+                    <button class="recharge-modal-close" onclick="hideRechargeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="recharge-modal-body">
+                    <!-- 套餐选择 -->
+                    <div class="recharge-packages">
+                        <div class="recharge-package" data-pay="500" data-get="550" onclick="selectRechargePackage(500, 550)">
+                            <div class="recharge-package-price">¥500</div>
+                            <div class="recharge-package-get">到账 ¥550</div>
+                            <div class="recharge-package-gift">赠送 ¥50</div>
+                        </div>
+                        <div class="recharge-package recommended" data-pay="1000" data-get="1200" onclick="selectRechargePackage(1000, 1200)">
+                            <div class="recharge-package-badge">推荐</div>
+                            <div class="recharge-package-price">¥1000</div>
+                            <div class="recharge-package-get">到账 ¥1200</div>
+                            <div class="recharge-package-gift">赠送 ¥200</div>
+                        </div>
+                        <div class="recharge-package" data-pay="3000" data-get="4000" onclick="selectRechargePackage(3000, 4000)">
+                            <div class="recharge-package-price">¥3000</div>
+                            <div class="recharge-package-get">到账 ¥4000</div>
+                            <div class="recharge-package-gift">赠送 ¥1000</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 自定义金额 -->
+                    <div class="recharge-custom">
+                        <div class="recharge-custom-label">自定义充值</div>
+                        <div class="recharge-custom-input">
+                            <span>¥</span>
+                            <input type="number" id="customRechargeAmount" placeholder="输入金额" min="10" oninput="onCustomAmountChange(this.value)">
+                        </div>
+                        <div class="recharge-custom-hint">最小充值金额 10 元</div>
+                    </div>
+                    
+                    <!-- 支付方式 -->
+                    <div class="recharge-payment">
+                        <div class="recharge-payment-label">支付方式</div>
+                        <div class="recharge-payment-options">
+                            <div class="recharge-payment-option active" data-type="wechat" onclick="switchRechargePayment('wechat')">
+                                <i class="fab fa-weixin"></i>
+                                <span>微信支付</span>
+                            </div>
+                            <div class="recharge-payment-option" data-type="alipay" onclick="switchRechargePayment('alipay')">
+                                <i class="fab fa-alipay"></i>
+                                <span>支付宝</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 支付金额 -->
+                    <div class="recharge-amount">
+                        <span>实付金额：</span>
+                        <span id="rechargePayAmount">¥1000</span>
+                    </div>
+                    
+                    <!-- 支付按钮 -->
+                    <button class="recharge-pay-btn" onclick="confirmRecharge()">
+                        <i class="fas fa-lock"></i> 确认支付
+                    </button>
+                    
+                    <!-- 提示信息 -->
+                    <div class="recharge-tips">
+                        <div><i class="fas fa-file-invoice"></i> 支付后可开发票</div>
+                        <div><i class="fas fa-shield-alt"></i> 购买即同意《比地招标网线上购买与服务条款》</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 充值记录弹窗 -->
+    <div class="modal-overlay" id="rechargeRecordsModal" onclick="hideRechargeRecordsModal(event)">
+        <div class="modal-sheet records-modal-sheet" onclick="event.stopPropagation()">
+            <div class="modal-handle"></div>
+            <div class="records-modal-content">
+                <div class="records-modal-header">
+                    <div class="records-modal-icon" style="background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);">
+                        <i class="fas fa-list-alt"></i>
+                    </div>
+                    <div class="records-modal-title">
+                        <h3>充值记录</h3>
+                        <p>查看您的历史充值明细</p>
+                    </div>
+                    <button class="records-modal-close" onclick="hideRechargeRecordsModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="records-modal-body">
+                    <!-- 记录列表 -->
+                    <div class="recharge-records-list" id="rechargeRecordsList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 支付成功弹窗 -->
+    <div class="modal-overlay" id="paymentSuccessModal" onclick="hidePaymentSuccessModal(event)">
+        <div class="modal-sheet payment-success-sheet" onclick="event.stopPropagation()">
+            <div class="payment-success-content">
+                <div class="payment-success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>支付成功！</h3>
+                <p>您已成功充值 <span id="successRechargeAmount">¥1200</span></p>
+                <div class="payment-success-detail">
+                    <div class="payment-success-row">
+                        <span>充值金额</span>
+                        <span id="successPayAmount">¥1000</span>
+                    </div>
+                    <div class="payment-success-row">
+                        <span>赠送金额</span>
+                        <span id="successGiftAmount" style="color: #52c41a;">+¥200</span>
+                    </div>
+                    <div class="payment-success-row total">
+                        <span>到账总额</span>
+                        <span id="successTotalAmount">¥1200</span>
+                    </div>
+                </div>
+                <button class="payment-success-btn" onclick="closePaymentSuccess()">知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API分类数据
+        const categories = [
+            { id: 'all', name: '全部接口', count: 79 },
+            { id: 'gongshang', name: '工商信息', count: 15 },
+            { id: 'sifa', name: '司法风险', count: 10 },
+            { id: 'zhishi', name: '知识产权', count: 5 },
+            { id: 'jingying', name: '经营信息', count: 8 },
+            { id: 'zhaotoubiao', name: '招投标', count: 5 },
+            { id: 'jingyingfengxian', name: '经营风险', count: 5 },
+            { id: 'qiyefazhan', name: '企业发展', count: 5 },
+            { id: 'shangshigongsi', name: '上市公司', count: 5 },
+            { id: 'jianzhushichang', name: '建筑市场', count: 13 },
+            { id: 'xinyongzhongguo', name: '信用中国', count: 2 },
+            { id: 'teshuzhuti', name: '特殊主体', count: 4 },
+            { id: 'tongyong', name: '通用接口', count: 2 }
+        ];
+
+        // 完整的79个API接口数据（带价格）
+        const apiData = {
+            'gongshang': [
+                { id: 'IC-001', name: '企业工商基本信息查询', desc: '查询企业工商登记基本信息，包括企业名称、法定代表人、注册资本、成立日期、经营状态、经营范围等。', method: 'GET', path: '/v1/company/base', price: '0.10' },
+                { id: 'IC-002', name: '企业分支机构查询', desc: '查询企业的分支机构列表，包括分支机构名称、负责人、经营状态、注册地址等信息。', method: 'GET', path: '/v1/company/branch', price: '0.08' },
+                { id: 'IC-003', name: '企业变更记录查询', desc: '查询企业历史工商变更记录，包括变更事项、变更前后内容及变更时间。', method: 'GET', path: '/v1/company/change', price: '0.08' },
+                { id: 'IC-004', name: '企业主要人员查询', desc: '查询企业主要人员信息，包括法定代表人、董事、监事、高管等人员名称及职务。', method: 'GET', path: '/v1/company/employee', price: '0.08' },
+                { id: 'IC-005', name: '企业曾用名查询', desc: '查询企业历史曾用名及更名时间，帮助追溯企业演变历史。', method: 'GET', path: '/v1/company/history-name', price: '0.05' },
+                { id: 'IC-006', name: '企业股东信息查询', desc: '查询企业股东（出资人）信息，包括股东名称、持股比例、出资额及认缴实缴情况。', method: 'GET', path: '/v1/company/partner', price: '0.08' },
+                { id: 'IC-007', name: '企业经营异常查询', desc: '查询企业经营异常记录，包括列入原因、列入日期、移出原因及移出日期。', method: 'GET', path: '/v1/company/abnormal', price: '0.08' },
+                { id: 'IC-008', name: '企业行政许可查询', desc: '查询企业获得的行政许可信息，包括许可文件号、许可内容、有效期及许可机关。', method: 'GET', path: '/v1/company/license', price: '0.08' },
+                { id: 'IC-009', name: '企业行政处罚查询', desc: '查询企业工商行政处罚记录，包括处罚决定文书号、处罚类型、处罚内容、处罚机关及处罚日期。', method: 'GET', path: '/v1/company/punishment', price: '0.10' },
+                { id: 'IC-010', name: '企业股权出质查询', desc: '查询企业股权出质登记信息，包括出质人、质权人、出质股权数额及登记日期。', method: 'GET', path: '/v1/company/equity-pledge', price: '0.08' },
+                { id: 'IC-011', name: '企业严重违法查询', desc: '查询企业严重违法失信名单信息，包括列入原因、列入日期及移出信息。', method: 'GET', path: '/v1/company/serious-violation', price: '0.10' },
+                { id: 'IC-012', name: '企业清算信息查询', desc: '查询企业清算组备案信息，包括清算组负责人、清算组成员及清算备案日期。', method: 'GET', path: '/v1/company/liquidation', price: '0.08' },
+                { id: 'IC-013', name: '企业年报基本信息查询', desc: '查询企业历年年报基本信息，包括报告年度、通讯地址、电子邮箱及企业经营状态。', method: 'GET', path: '/v1/company/annual-report', price: '0.08' },
+                { id: 'IC-014', name: '企业年报资产信息查询', desc: '查询企业年报中披露的资产负债信息，包括总资产、净资产、营业总收入、利润总额及净利润。', method: 'GET', path: '/v1/company/annual-asset', price: '0.10' },
+                { id: 'IC-015', name: '企业简易注销查询', desc: '查询企业简易注销公告信息，包括公告期、注销状态及异议信息。', method: 'GET', path: '/v1/company/simple-cancellation', price: '0.05' }
+            ],
+            'sifa': [
+                { id: 'JU-001', name: '企业被执行人查询', desc: '查询企业作为被执行人的强制执行记录，包括立案时间、执行标的金额及执行法院。', method: 'GET', path: '/v1/judicial/executed', price: '0.15' },
+                { id: 'JU-002', name: '企业失信被执行人查询', desc: '查询企业列入失信被执行人（老赖）名单信息，包括失信情形、列入时间及履行情况。', method: 'GET', path: '/v1/judicial/dishonest', price: '0.15' },
+                { id: 'JU-003', name: '企业限制高消费查询', desc: '查询企业被法院限制高消费的记录，包括限制原因、限制类型及限制日期。', method: 'GET', path: '/v1/judicial/restrict-consumption', price: '0.15' },
+                { id: 'JU-004', name: '企业裁判文书查询', desc: '查询企业相关裁判文书，包括案由、案件类型、审判结果、涉案金额及审理法院。', method: 'GET', path: '/v1/judicial/judgment', price: '0.15' },
+                { id: 'JU-005', name: '企业开庭公告查询', desc: '查询企业相关开庭公告信息，包括开庭日期、案由、法院及当事人角色。', method: 'GET', path: '/v1/judicial/court-notice', price: '0.12' },
+                { id: 'JU-006', name: '企业法院公告查询', desc: '查询企业相关法院公告，包括公告类型、公告内容及公告日期。', method: 'GET', path: '/v1/judicial/court-announcement', price: '0.12' },
+                { id: 'JU-007', name: '企业立案信息查询', desc: '查询企业相关立案信息，包括立案类型、案由、立案法院及立案时间。', method: 'GET', path: '/v1/judicial/case-filing', price: '0.12' },
+                { id: 'JU-008', name: '企业终本案件查询', desc: '查询企业终结本次执行程序案件，包括案件编号、执行金额、终结时间及未履行原因。', method: 'GET', path: '/v1/judicial/terminated-case', price: '0.12' },
+                { id: 'JU-009', name: '企业破产重整查询', desc: '查询企业破产重整、清算相关案件信息，包括案件类型、案件状态、法院及管理人。', method: 'GET', path: '/v1/judicial/bankruptcy', price: '0.15' },
+                { id: 'JU-010', name: '企业司法拍卖查询', desc: '查询企业相关司法拍卖记录，包括拍卖标的、起拍价、成交价及拍卖结果。', method: 'GET', path: '/v1/judicial/judicial-auction', price: '0.15' }
+            ],
+            'zhishi': [
+                { id: 'IP-001', name: '企业专利信息查询', desc: '查询企业专利申请及授权信息，包括专利名称、专利类型、申请号、公开号及法律状态。', method: 'GET', path: '/v1/ip/patent', price: '0.15' },
+                { id: 'IP-002', name: '企业商标信息查询', desc: '查询企业商标申请及注册信息，包括商标名称、注册号、注册类别、有效期及转让记录。', method: 'GET', path: '/v1/ip/trademark', price: '0.15' },
+                { id: 'IP-003', name: '企业软件著作权查询', desc: '查询企业软件著作权登记信息，包括软件名称、版本号、登记号、登记日期及著作权人。', method: 'GET', path: '/v1/ip/software-copyright', price: '0.15' },
+                { id: 'IP-004', name: '企业作品著作权查询', desc: '查询企业作品著作权登记信息，包括作品名称、作品类型、登记号及创作完成日期。', method: 'GET', path: '/v1/ip/work-copyright', price: '0.15' },
+                { id: 'IP-005', name: '企业网站备案查询', desc: '查询企业互联网信息服务备案（ICP备案）信息，包括备案号、网站域名、备案主体及审核时间。', method: 'GET', path: '/v1/ip/website-record', price: '0.10' }
+            ],
+            'jingying': [
+                { id: 'OP-001', name: '企业产品信息查询', desc: '查询企业对外披露的产品信息，包括产品名称、产品类别、产品描述等。', method: 'GET', path: '/v1/operation/product', price: '0.08' },
+                { id: 'OP-002', name: '企业招聘信息查询', desc: '查询企业在各平台发布的招聘职位信息，包括职位名称、招聘规模、薪资范围及工作地点。', method: 'GET', path: '/v1/operation/recruitment', price: '0.08' },
+                { id: 'OP-003', name: '企业进出口信用查询', desc: '查询企业海关注册登记信息及进出口信用评级，包括海关注册号、经营类别、信用等级。', method: 'GET', path: '/v1/operation/import-export', price: '0.10' },
+                { id: 'OP-004', name: '企业纳税信用查询', desc: '查询企业纳税信用等级评定信息，包括评定年度、信用等级及评定税务机关。', method: 'GET', path: '/v1/operation/tax-credit', price: '0.10' },
+                { id: 'OP-005', name: '企业土地信息查询', desc: '查询企业土地购置、土地抵押及地块公示信息，包括地块面积、坐落位置、土地用途及成交价格。', method: 'GET', path: '/v1/operation/land', price: '0.10' },
+                { id: 'OP-006', name: '企业资质证书查询', desc: '查询企业持有的各类资质证书信息，包括资质类型、证书编号、有效期及发证机关。', method: 'GET', path: '/v1/operation/qualification', price: '0.10' },
+                { id: 'OP-007', name: '企业债券信息查询', desc: '查询企业发行债券信息，包括债券名称、债券代码、发行金额、票面利率及到期日期。', method: 'GET', path: '/v1/operation/bond', price: '0.15' },
+                { id: 'OP-008', name: '企业主体信用评级查询', desc: '查询企业主体信用评级信息，包括评级机构、信用等级、评级展望及评级日期。', method: 'GET', path: '/v1/operation/credit-rating', price: '0.15' }
+            ],
+            'zhaotoubiao': [
+                { id: 'BID-001', name: '招投标公告查询', desc: '查询招投标公告信息，包括招标公告、中标公告、变更公告等。支持按地区、行业、金额、时间等条件筛选。', method: 'GET', path: '/v1/bid/announcement', price: '0.08' },
+                { id: 'BID-002', name: '审批项目查询', desc: '查询政府审批项目信息，包括审批项目名称、审批时间、项目地区及审批机关。', method: 'GET', path: '/v1/bid/approval-project', price: '0.08' },
+                { id: 'BID-003', name: '招投标项目详情查询', desc: '查询招投标项目详细信息，包括招标时间、开标时间、项目金额、招标范围及投标方列表。', method: 'GET', path: '/v1/bid/project-detail', price: '0.08' },
+                { id: 'BID-004', name: '拟在建项目查询', desc: '查询企业拟建或在建项目信息，包括项目名称、立项时间、投资金额及建设地点。', method: 'GET', path: '/v1/bid/planned-project', price: '0.10' },
+                { id: 'BID-005', name: '招标法律条款查询', desc: '查询招投标相关法律条款数据，包括条款标题、适用区域、条款内容及来源法规。', method: 'GET', path: '/v1/bid/legal-clause', price: '0.08' }
+            ],
+            'jingyingfengxian': [
+                { id: 'RISK-001', name: '企业欠税公告查询', desc: '查询企业欠税公告信息，包括纳税人识别号、欠税税种、欠税金额、欠税所属期及税务机关。', method: 'GET', path: '/v1/risk/own-tax', price: '0.10' },
+                { id: 'RISK-002', name: '企业环保处罚查询', desc: '查询企业环保违规处罚记录，包括违规内容、处罚金额、处罚机关及处罚日期。', method: 'GET', path: '/v1/risk/env-punishment', price: '0.12' },
+                { id: 'RISK-003', name: '企业重大税收违法查询', desc: '查询企业重大税收违法失信案件信息，包括违法事由、处理结果、处理机关及公告日期。', method: 'GET', path: '/v1/risk/tax-violation', price: '0.12' },
+                { id: 'RISK-004', name: '企业税务非正常户查询', desc: '查询企业被认定为税务非正常户的记录信息，包括认定日期、认定机关及处理状态。', method: 'GET', path: '/v1/risk/tax-abnormal', price: '0.10' },
+                { id: 'RISK-005', name: '企业风险综合评估', desc: '综合返回企业的经营风险评估结果，包括司法风险数量、经营异常状态、欠税记录及风险评分。', method: 'GET', path: '/v1/risk/comprehensive', price: '0.15' }
+            ],
+            'qiyefazhan': [
+                { id: 'DEV-001', name: '企业融资历史查询', desc: '查询企业历次融资信息，包括融资轮次、融资金额、融资时间、投资机构及投后估值。', method: 'GET', path: '/v1/develop/financing', price: '0.15' },
+                { id: 'DEV-002', name: '企业投资事件查询', desc: '查询企业作为投资方的对外投资事件信息，包括被投企业名称、投资金额、投资比例及投资轮次。', method: 'GET', path: '/v1/develop/investment', price: '0.15' },
+                { id: 'DEV-003', name: '企业核心团队查询', desc: '查询企业核心管理团队信息，包括姓名、职务、教育背景及工作履历。', method: 'GET', path: '/v1/develop/core-team', price: '0.10' },
+                { id: 'DEV-004', name: '企业资质荣誉查询', desc: '查询企业获得的荣誉称号及资质认证，包括荣誉名称、颁发机构及获得时间。', method: 'GET', path: '/v1/develop/honor', price: '0.08' },
+                { id: 'DEV-005', name: '企业票据承兑信用查询', desc: '查询企业票据承兑信用信息，包括承兑票据类型、金额规模、逾期情况及信用评级。', method: 'GET', path: '/v1/develop/bill-acceptance', price: '0.12' }
+            ],
+            'shangshigongsi': [
+                { id: 'STK-001', name: '上市公司基本信息查询', desc: '查询上市公司基本信息，包括股票代码、上市交易所、上市日期、行业分类及市值信息。', method: 'GET', path: '/v1/stock/basic', price: '0.15' },
+                { id: 'STK-002', name: '上市公司高管信息查询', desc: '查询上市公司高管人员信息，包括姓名、职务、薪酬、持股数量及简历信息。', method: 'GET', path: '/v1/stock/executive', price: '0.15' },
+                { id: 'STK-003', name: '上市公司股东信息查询', desc: '查询上市公司十大股东及十大流通股东信息，包括股东名称、持股数量、持股比例及持股变动。', method: 'GET', path: '/v1/stock/shareholder', price: '0.15' },
+                { id: 'STK-004', name: '上市公司财务报表查询', desc: '查询上市公司财务报表数据，包括资产负债表、利润表、现金流量表主要指标。', method: 'GET', path: '/v1/stock/financial', price: '0.20' },
+                { id: 'STK-005', name: '上市公司分红配股查询', desc: '查询上市公司历史分红派息及配股情况，包括每股分红、分红金额及实施日期。', method: 'GET', path: '/v1/stock/dividend', price: '0.15' }
+            ],
+            'jianzhushichang': [
+                { id: 'CONS-001', name: '建筑工程企业备案查询', desc: '查询建筑相关企业在建筑市场监管平台的备案信息，包括企业基本信息及备案状态。', method: 'GET', path: '/v1/construction/enterprise-record', price: '0.10' },
+                { id: 'CONS-002', name: '建筑工程资质查询', desc: '查询企业持有的建筑工程资质信息，包括资质序列、资质名称、证书编号、有效期及发证机关。', method: 'GET', path: '/v1/construction/qualification', price: '0.12' },
+                { id: 'CONS-003', name: '建筑工程注册人员查询', desc: '查询企业工程注册人员信息，包括姓名、注册类别、注册号、执业单位及有效期。', method: 'GET', path: '/v1/construction/personnel', price: '0.10' },
+                { id: 'CONS-004', name: '工程项目业绩查询', desc: '查询企业承建工程项目业绩信息，包括项目名称、项目类型、合同金额、竣工日期及建设单位。', method: 'GET', path: '/v1/construction/project-performance', price: '0.15' },
+                { id: 'CONS-005', name: '公路工程项目业绩查询', desc: '查询企业公路工程项目业绩信息（来源：公路工程信息平台），包括项目名称、合同金额、项目状态及交工日期。', method: 'GET', path: '/v1/construction/highway-performance', price: '0.15' },
+                { id: 'CONS-006', name: '水利工程项目业绩查询', desc: '查询企业水利工程项目业绩信息（来源：水利部信息平台），包括项目名称、合同金额、项目状态及验收日期。', method: 'GET', path: '/v1/construction/water-performance', price: '0.15' },
+                { id: 'CONS-007', name: '建筑企业信用评分查询', desc: '查询建筑工程企业信用评分信息，包括综合评分、各维度得分及评分来源平台。', method: 'GET', path: '/v1/construction/credit-score', price: '0.10' },
+                { id: 'CONS-008', name: '建筑企业诚信信息查询', desc: '查询建筑企业诚信档案信息，包括良好行为记录、不良行为记录及奖惩情况。', method: 'GET', path: '/v1/construction/integrity', price: '0.10' },
+                { id: 'CONS-009', name: '建筑企业荣誉查询', desc: '查询建筑企业在建筑市场获得的荣誉奖项信息，包括奖项名称、子项奖项及获奖时间。', method: 'GET', path: '/v1/construction/honor', price: '0.08' },
+                { id: 'CONS-010', name: '围标串标记录查询', desc: '查询企业涉及围标串标的违规记录，包括项目名称、公告日期、违规类型及处罚结果。', method: 'GET', path: '/v1/construction/bid-collusion', price: '0.10' },
+                { id: 'CONS-011', name: '建筑资质撤销记录查询', desc: '查询建筑企业资质被撤销的处罚记录，包括资质名称、撤销原因、撤销机关及撤销日期。', method: 'GET', path: '/v1/construction/qualification-revoke', price: '0.08' },
+                { id: 'CONS-012', name: '建筑资质注销记录查询', desc: '查询建筑企业资质注销记录，包括资质名称、注销原因及注销日期。', method: 'GET', path: '/v1/construction/qualification-cancel', price: '0.08' },
+                { id: 'CONS-013', name: '建筑市场不良行为查询', desc: '查询企业在建筑市场中的不良行为记录，包括违规内容、处罚类型、处罚金额及公示状态。', method: 'GET', path: '/v1/construction/misconduct', price: '0.10' }
+            ],
+            'xinyongzhongguo': [
+                { id: 'CC-001', name: '信用中国-行政处罚查询', desc: '查询信用中国平台收录的行政处罚信息，包括处罚决定文书号、违法行为、处罚内容及处罚机关。', method: 'GET', path: '/v1/creditchina/punishment', price: '0.10' },
+                { id: 'CC-002', name: '信用中国-行政许可查询', desc: '查询信用中国平台收录的行政许可信息，包括许可证编号、许可项目、有效期及许可机关。', method: 'GET', path: '/v1/creditchina/license', price: '0.10' }
+            ],
+            'teshuzhuti': [
+                { id: 'SP-001', name: '事业单位信息查询', desc: '查询事业单位基本登记信息，包括单位名称、主管部门、批准成立日期及经费来源。', method: 'GET', path: '/v1/special/public-institution', price: '0.10' },
+                { id: 'SP-002', name: '社会组织信息查询', desc: '查询社会组织（社会团体/民办非企业单位/基金会）基本信息，包括组织名称、登记状态、业务范围及法定代表人。', method: 'GET', path: '/v1/special/social-organization', price: '0.12' },
+                { id: 'SP-003', name: '律师事务所信息查询', desc: '查询律师事务所基本信息，包括事务所名称、律师人数、执业证号及负责人。', method: 'GET', path: '/v1/special/law-office', price: '0.15' },
+                { id: 'SP-004', name: '香港企业信息查询', desc: '查询在大陆登记的香港企业基本信息，包括企业名称、注册地、注册资本及法定代表人。', method: 'GET', path: '/v1/special/hongkong-company', price: '0.10' }
+            ],
+            'tongyong': [
+                { id: 'COMM-001', name: '企业名称模糊搜索', desc: '根据关键词模糊搜索企业名称，返回匹配的企业列表，适用于前端自动补全及企业检索场景。', method: 'GET', path: '/v1/common/search', price: '0.08' },
+                { id: 'COMM-002', name: '企业年报查询（比地）', desc: '查询企业工商年报综合信息（来源：比地数据），包括企业基本信息、资产状况、社保信息及对外投资。', method: 'GET', path: '/v1/common/annual-report', price: '0.10' }
+            ]
+        };
+
+        let currentCategory = 'all';
+        let currentPage = 1;
+        const pageSize = 10;
+        let currentApiForApply = null;
+
+        // 获取URL参数
+        function getUrlParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderCategoryList();
+            
+            // 检查是否有搜索参数
+            const searchKeyword = getUrlParam('search');
+            if (searchKeyword) {
+                document.getElementById('searchInput').value = decodeURIComponent(searchKeyword);
+                searchAPI();
+            } else {
+                renderAPIList();
+            }
+        });
+
+        // 渲染分类列表
+        function renderCategoryList() {
+            const container = document.getElementById('categoryList');
+            let html = '';
+            
+            categories.forEach(cat => {
+                const isActive = cat.id === currentCategory ? 'active' : '';
+                html += `
+                    <div class="category-tag ${isActive}" onclick="selectCategory('${cat.id}')">
+                        ${cat.name}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // 选择分类
+        function selectCategory(categoryId) {
+            currentCategory = categoryId;
+            currentPage = 1;
+            document.getElementById('searchInput').value = '';
+            
+            const cat = categories.find(c => c.id === categoryId);
+            document.getElementById('statsTitle').textContent = cat ? cat.name : '全部接口';
+            
+            renderCategoryList();
+            renderAPIList();
+        }
+
+        // 根据前缀获取图标和颜色
+        function getIconByPrefix(prefix) {
+            const iconMap = {
+                'IC': 'fa-building', 'JU': 'fa-gavel', 'IP': 'fa-lightbulb', 'OP': 'fa-chart-line',
+                'BID': 'fa-handshake', 'RISK': 'fa-exclamation-triangle', 'DEV': 'fa-rocket', 'LIST': 'fa-chart-bar',
+                'CONS': 'fa-hard-hat', 'CC': 'fa-shield-alt', 'SP': 'fa-star', 'COMM': 'fa-search'
+            };
+            return iconMap[prefix] || 'fa-plug';
+        }
+        
+        function getColorByPrefix(prefix) {
+            const colorMap = {
+                'IC': '#2563eb', 'JU': '#dc2626', 'IP': '#9333ea', 'OP': '#16a34a',
+                'BID': '#0891b2', 'RISK': '#ea580c', 'DEV': '#4f46e5', 'LIST': '#db2777',
+                'CONS': '#f59e0b', 'CC': '#6366f1', 'SP': '#ec4899', 'COMM': '#10b981'
+            };
+            return colorMap[prefix] || '#1890ff';
+        }
+        
+        // 渲染接口列表 - 同步PC端样式
+        function renderAPIList() {
+            const container = document.getElementById('apiList');
+            let apis = [];
+
+            if (currentCategory === 'all') {
+                Object.keys(apiData).forEach(catId => {
+                    const cat = categories.find(c => c.id === catId);
+                    apiData[catId].forEach(api => {
+                        apis.push({ ...api, categoryId: catId, categoryName: cat ? cat.name : '' });
+                    });
+                });
+            } else {
+                const cat = categories.find(c => c.id === currentCategory);
+                apis = (apiData[currentCategory] || []).map(api => ({
+                    ...api,
+                    categoryId: currentCategory,
+                    categoryName: cat ? cat.name : ''
+                }));
+            }
+
+            // 更新统计
+            document.getElementById('statsCount').textContent = apis.length;
+
+            // 分页
+            const start = 0;
+            const end = currentPage * pageSize;
+            const displayApis = apis.slice(start, end);
+
+            let html = '';
+            displayApis.forEach(api => {
+                const prefix = api.id.split('-')[0];
+                const color = getColorByPrefix(prefix);
+                const icon = getIconByPrefix(prefix);
+                
+                html += `
+                    <div class="api-card" onclick="showDetail('${api.id}', '${api.categoryId}')">
+                        <div class="api-card-content">
+                            <div class="api-header">
+                                <div class="api-title-section">
+                                    <div class="api-icon" style="background: ${color}15; color: ${color};">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <div class="api-name">${api.name}</div>
+                                </div>
+                                <div class="api-tags">
+                                    <span class="api-tag tag-method">${api.method}</span>
+                                </div>
+                            </div>
+                            <div class="api-desc">${api.desc}</div>
+                            <div class="api-footer">
+                                <div class="api-price-display">
+                                    <span class="api-price-label">单价：</span>
+                                    <span class="api-price-value">${api.price || '0.05'}元/次</span>
+                                </div>
+                                <div class="api-actions">
+                                    <button class="api-btn detail" onclick="event.stopPropagation(); showDetail('${api.id}', '${api.categoryId}')">查看详情</button>
+                                    <button class="api-btn apply" onclick="event.stopPropagation(); showAuthModal('${api.id}', '${api.categoryId}')">申请接口</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // 是否显示加载更多
+            const loadMoreBtn = document.querySelector('.load-more');
+            if (apis.length <= end) {
+                loadMoreBtn.style.display = 'none';
+            } else {
+                loadMoreBtn.style.display = 'block';
+            }
+        }
+
+        // 加载更多
+        function loadMore() {
+            currentPage++;
+            renderAPIList();
+        }
+
+        // 搜索
+        // 高亮关键词
+        function highlightKeyword(text, keyword) {
+            if (!keyword) return text;
+            const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+            return text.replace(regex, '<span class="highlight-keyword">$1</span>');
+        }
+
+        function searchAPI() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            const keywordOriginal = document.getElementById('searchInput').value.trim();
+            if (!keyword) {
+                currentPage = 1;
+                renderAPIList();
+                return;
+            }
+
+            const container = document.getElementById('apiList');
+            let results = [];
+
+            Object.keys(apiData).forEach(catId => {
+                const cat = categories.find(c => c.id === catId);
+                apiData[catId].forEach(api => {
+                    if (api.name.toLowerCase().includes(keyword) || 
+                        api.id.toLowerCase().includes(keyword) ||
+                        api.desc.toLowerCase().includes(keyword)) {
+                        results.push({ ...api, categoryId: catId, categoryName: cat ? cat.name : '' });
+                    }
+                });
+            });
+
+            document.getElementById('statsCount').textContent = results.length;
+
+            let html = '';
+            results.forEach(api => {
+                const prefix = api.id.split('-')[0];
+                const color = getColorByPrefix(prefix);
+                const icon = getIconByPrefix(prefix);
+                
+                // 高亮显示
+                const highlightedName = highlightKeyword(api.name, keywordOriginal);
+                const highlightedDesc = highlightKeyword(api.desc, keywordOriginal);
+                const highlightedId = highlightKeyword(api.id, keywordOriginal);
+                
+                html += `
+                    <div class="api-card" onclick="showDetail('${api.id}', '${api.categoryId}')">
+                        <div class="api-card-content">
+                            <div class="api-header">
+                                <div class="api-title-section">
+                                    <div class="api-icon" style="background: ${color}15; color: ${color};">
+                                        <i class="fas ${icon}"></i>
+                                    </div>
+                                    <div class="api-name">${highlightedName}</div>
+                                </div>
+                                <div class="api-tags">
+                                    <span class="api-tag tag-method">${api.method}</span>
+                                    <span class="api-tag tag-id">${highlightedId}</span>
+                                </div>
+                            </div>
+                            <div class="api-desc">${highlightedDesc}</div>
+                            <div class="api-footer">
+                                <div class="api-price-display">
+                                    <span class="api-price-label">单价：</span>
+                                    <span class="api-price-value">${api.price || '0.05'}元/次</span>
+                                </div>
+                                <div class="api-actions">
+                                    <button class="api-btn detail" onclick="event.stopPropagation(); showDetail('${api.id}', '${api.categoryId}')">查看详情</button>
+                                    <button class="api-btn apply" onclick="event.stopPropagation(); showAuthModal('${api.id}', '${api.categoryId}')">申请接口</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html || '<div style="text-align: center; padding: 40px; color: #999;">未找到相关接口</div>';
+            document.querySelector('.load-more').style.display = 'none';
+        }
+
+        // 显示详情
+        function showDetail(apiId, categoryId) {
+            const api = apiData[categoryId]?.find(a => a.id === apiId);
+            if (!api) return;
+
+            const cat = categories.find(c => c.id === categoryId);
+            currentApiForApply = { ...api, categoryId, categoryName: cat ? cat.name : '--' };
+
+            document.getElementById('detailName').textContent = api.name;
+            document.getElementById('detailId').textContent = api.id;
+            document.getElementById('detailCategory').textContent = cat ? cat.name : '--';
+            document.getElementById('detailMethod').textContent = api.method;
+            document.getElementById('detailDesc').textContent = api.desc;
+            document.getElementById('detailPrice').textContent = (api.price || '0.05') + '元/次';
+            document.getElementById('detailPath').textContent = api.path;
+
+            // 恢复申请按钮（从接口列表进入时显示申请按钮）
+            const detailActions = document.querySelector('.detail-actions');
+            detailActions.innerHTML = `
+                <button class="detail-btn cancel" onclick="hideDetailModal()">关闭</button>
+                <button class="detail-btn test" onclick="testApiFromDetail()">在线测试</button>
+                <button class="detail-btn apply" onclick="showApplyModalFromDetail()">申请接口</button>
+            `;
+
+            document.getElementById('detailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 隐藏详情
+        function hideDetailModal(event) {
+            if (!event || event.target === document.getElementById('detailModal')) {
+                document.getElementById('detailModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // 从详情页打开申请弹窗
+        function showApplyModalFromDetail() {
+            hideDetailModal();
+            if (currentApiForApply) {
+                showAuthModal(currentApiForApply.id, currentApiForApply.categoryId);
+            }
+        }
+
+        // 从详情页打开测试弹窗
+        function testApiFromDetail() {
+            hideDetailModal();
+            if (currentApiForApply) {
+                // 重置代码示例区域和提示
+                document.getElementById('codeExampleSection').style.display = 'none';
+                document.getElementById('testTipSection').style.display = 'block';
+                openTestModal(currentApiForApply.id, currentApiForApply.categoryId);
+            }
+        }
+
+        // 显示申请确认弹窗 - 简洁版
+        function showAuthModal(apiId, categoryId) {
+            const api = apiData[categoryId]?.find(a => a.id === apiId);
+            if (!api) return;
+
+            currentApiForApply = { ...api, categoryId };
+            
+            document.getElementById('authApiName').textContent = api.name;
+            document.getElementById('authModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 隐藏申请弹窗
+        function hideAuthModal(event) {
+            if (!event || event.target === document.getElementById('authModal')) {
+                document.getElementById('authModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // 确认申请
+        function confirmAuth() {
+            if (!currentApiForApply) return;
+            
+            // 添加到我的接口列表
+            const newApi = {
+                ...currentApiForApply,
+                status: 'active',
+                applyTime: new Date().toISOString(),
+                monthlyCalls: 0,
+                totalCalls: 0
+            };
+            myApisData.push(newApi);
+            
+            // 隐藏弹窗
+            hideAuthModal();
+            
+            // 显示成功提示
+            showToast('申请成功', 'success');
+            
+            // 跳转到我的接口页面
+            setTimeout(() => {
+                showMyApisPage();
+            }, 500);
+        }
+
+        // 测试接口
+        let currentTestApi = null;
+        
+        function testApi(apiId, categoryId) {
+            const api = apiData[categoryId]?.find(a => a.id === apiId);
+            if (!api) return;
+            
+            currentTestApi = api;
+            document.getElementById('testModalSubtitle').textContent = api.name;
+            document.getElementById('testModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 隐藏测试接口弹窗
+        function hideTestModal(event) {
+            if (!event || event.target === document.getElementById('testModal')) {
+                document.getElementById('testModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 切换测试响应标签
+        function switchTestTab(tab, type) {
+            document.querySelectorAll('.test-code-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const responseBlock = document.getElementById('testResponseBlock');
+            if (type === 'json') {
+                responseBlock.textContent = `{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "id": 9519792,
+    "name": "阿里巴巴集团控股有限公司",
+    "legalPersonName": "张勇",
+    "regCapital": "100000万美元",
+    "estiblishTime": "1999-09-09",
+    "regStatus": "存续"
+  },
+  "cost": ${currentTestApi?.price || 0.05}
+}`;
+            } else {
+                responseBlock.textContent = `{
+  "Content-Type": "application/json",
+  "X-Request-Id": "req_${Date.now()}",
+  "X-RateLimit-Limit": "1000",
+  "X-RateLimit-Remaining": "999"
+}`;
+            }
+        }
+        
+        // 切换代码示例标签
+        function switchCodeTab(tab, type) {
+            tab.parentElement.querySelectorAll('.test-code-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            const keyword = document.getElementById('testKeyword').value.trim() || '阿里巴巴';
+            const apiPath = currentTestApi?.path || '/v1/company/base';
+            const codeBlock = document.getElementById('codeExampleBlock');
+            
+            const codeExamples = {
+                curl: `curl -X GET "https://api.bidizhaobiao.com${apiPath}?keyword=${keyword}" \\
+  -H "Authorization: Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz" \\
+  -H "Content-Type: application/json"`,
+                python: `import requests
+
+url = "https://api.bidizhaobiao.com${apiPath}"
+params = {"keyword": "${keyword}"}
+headers = {
+    "Authorization": "Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz",
+    "Content-Type": "application/json"
+}
+
+response = requests.get(url, params=params, headers=headers)
+data = response.json()
+print(data)`,
+                java: `import java.net.http.*;
+import java.net.URI;
+
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.bidizhaobiao.com${apiPath}?keyword=${keyword}"))
+    .header("Authorization", "Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz")
+    .header("Content-Type", "application/json")
+    .build();
+
+HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());`,
+                php: `<?php
+$url = "https://api.bidizhaobiao.com${apiPath}?keyword=${keyword}";
+$headers = [
+    "Authorization: Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz",
+    "Content-Type: application/json"
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+echo $response;`,
+                nodejs: `const axios = require('axios');
+
+const url = 'https://api.bidizhaobiao.com${apiPath}';
+const params = { keyword: '${keyword}' };
+const headers = {
+    'Authorization': 'Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz',
+    'Content-Type': 'application/json'
+};
+
+axios.get(url, { params, headers })
+    .then(response => console.log(response.data))
+    .catch(error => console.error(error));`
+            };
+            
+            codeBlock.textContent = codeExamples[type] || codeExamples.curl;
+        }
+        
+        // 发送测试请求
+        function sendTestRequest() {
+            const keyword = document.getElementById('testKeyword').value.trim();
+            if (!keyword) {
+                showToast('请输入企业名称', 'error');
+                return;
+            }
+            
+            const sendBtn = document.querySelector('.test-send-btn');
+            const originalBtnContent = sendBtn.innerHTML;
+            
+            // 设置加载状态
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<div class="loading-spinner"></div> 发送中...';
+            
+            setTimeout(() => {
+                const cost = currentTestApi?.price || 0.05;
+                
+                document.getElementById('testCost').textContent = '¥' + cost;
+                
+                // 更新响应结果
+                document.getElementById('testResponseBlock').textContent = `{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "id": ${Math.floor(Math.random() * 10000000)},
+    "name": "${keyword}",
+    "legalPersonName": "张某某",
+    "regCapital": "1000万人民币",
+    "estiblishTime": "2010-01-01",
+    "regStatus": "存续"
+  },
+  "cost": ${cost}
+}`;
+                
+                // 隐藏提示，显示代码示例区域
+                document.getElementById('testTipSection').style.display = 'none';
+                const codeExampleSection = document.getElementById('codeExampleSection');
+                codeExampleSection.style.display = 'block';
+                
+                // 重置代码示例为cURL
+                const codeTabs = codeExampleSection.querySelectorAll('.test-code-tab');
+                codeTabs.forEach(t => t.classList.remove('active'));
+                codeTabs[0].classList.add('active');
+                
+                // 更新代码示例内容
+                const apiPath = currentTestApi?.path || '/v1/company/base';
+                document.getElementById('codeExampleBlock').textContent = `curl -X GET "https://api.bidizhaobiao.com${apiPath}?keyword=${keyword}" \\
+  -H "Authorization: Bearer bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz" \\
+  -H "Content-Type: application/json"`;
+                
+                // 恢复按钮状态
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalBtnContent;
+                
+                showToast('请求成功', 'success');
+            }, 800);
+        }
+        
+        // 查看全部调用记录
+        function showAllRecords() {
+            document.getElementById('recordsModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            renderRecordsList();
+        }
+        
+        // 隐藏调用记录弹窗
+        function hideRecordsModal(event) {
+            if (!event || event.target === document.getElementById('recordsModal')) {
+                document.getElementById('recordsModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 渲染调用记录列表
+        function renderRecordsList() {
+            const container = document.getElementById('recordsList');
+            let html = '';
+            
+            callRecordsData.forEach(record => {
+                const statusClass = record.status === 'success' ? 'success' : 'fail';
+                const statusIcon = record.status === 'success' ? 'fa-check' : 'fa-times';
+                const statusText = record.status === 'success' ? '成功' : '失败';
+                
+                html += `
+                    <div class="record-item" data-api="${record.apiName}" data-status="${record.status}">
+                        <div class="record-item-header">
+                            <span class="record-item-time">2026-01-15 ${record.time}</span>
+                            <span class="record-item-status ${statusClass}">
+                                <i class="fas ${statusIcon}"></i> ${statusText}
+                            </span>
+                        </div>
+                        <div class="record-item-name">${record.apiName}</div>
+                        <div class="record-item-footer">
+                            <span class="record-item-cost">${record.cost}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 显示日期选择器
+        function showDatePicker() {
+            const options = [
+                { text: '近三天', days: 3 },
+                { text: '近七天', days: 7 },
+                { text: '近一个月', days: 30 },
+                { text: '近三个月', days: 90 }
+            ];
+            
+            const html = options.map((opt, index) => 
+                `<div style="padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 15px; cursor: pointer;" onclick="selectDateOption(${opt.days}, '${opt.text}')">${opt.text}</div>`
+            ).join('');
+            
+            showPickerSheet('选择时间范围', html);
+        }
+        
+        // 选择日期选项
+        function selectDateOption(days, text) {
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(endDate.getDate() - days);
+            
+            document.getElementById('recordEndDate').value = endDate.toISOString().split('T')[0];
+            document.getElementById('recordStartDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('dateFilterText').textContent = text;
+            
+            hidePickerSheet();
+            filterRecords();
+        }
+        
+        // 显示接口选择器
+        function showApiPicker() {
+            const apis = [
+                { value: 'all', text: '全部接口' },
+                { value: '招标公告列表查询', text: '招标公告列表查询' },
+                { value: '招标公告详情查询', text: '招标公告详情查询' },
+                { value: '企业详情查询', text: '企业详情查询' },
+                { value: '中标公告列表查询', text: '中标公告列表查询' }
+            ];
+            
+            const html = apis.map(api => 
+                `<div style="padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 15px; cursor: pointer;" onclick="selectApiOption('${api.value}', '${api.text}')">${api.text}</div>`
+            ).join('');
+            
+            showPickerSheet('选择接口', html);
+        }
+        
+        // 选择接口选项
+        function selectApiOption(value, text) {
+            document.getElementById('recordApiFilter').value = value;
+            document.getElementById('apiFilterText').textContent = text;
+            hidePickerSheet();
+            filterRecords();
+        }
+        
+        // 显示状态选择器
+        function showStatusPicker() {
+            const statuses = [
+                { value: 'all', text: '全部状态' },
+                { value: 'success', text: '成功' },
+                { value: 'fail', text: '失败' }
+            ];
+            
+            const html = statuses.map(s => 
+                `<div style="padding: 14px 16px; border-bottom: 1px solid #f0f0f0; font-size: 15px; cursor: pointer;" onclick="selectStatusOption('${s.value}', '${s.text}')">${s.text}</div>`
+            ).join('');
+            
+            showPickerSheet('选择状态', html);
+        }
+        
+        // 选择状态选项
+        function selectStatusOption(value, text) {
+            document.getElementById('recordStatusFilter').value = value;
+            document.getElementById('statusFilterText').textContent = text;
+            hidePickerSheet();
+            filterRecords();
+        }
+        
+        // 显示选择器底部弹窗
+        function showPickerSheet(title, content) {
+            const sheet = document.createElement('div');
+            sheet.id = 'pickerSheet';
+            sheet.className = 'modal-overlay show';
+            sheet.style.zIndex = '2000';
+            sheet.innerHTML = `
+                <div class="modal-sheet" style="animation: slideUp 0.3s ease;" onclick="event.stopPropagation()">
+                    <div class="modal-handle"></div>
+                    <div style="padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 16px; font-weight: 600;">${title}</span>
+                        <button onclick="hidePickerSheet()" style="background: none; border: none; font-size: 20px; color: #999; cursor: pointer;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            sheet.onclick = hidePickerSheet;
+            document.body.appendChild(sheet);
+        }
+        
+        // 隐藏选择器底部弹窗
+        function hidePickerSheet() {
+            const sheet = document.getElementById('pickerSheet');
+            if (sheet) {
+                sheet.remove();
+            }
+        }
+        
+        // 筛选调用记录
+        function filterRecords() {
+            const apiFilter = document.getElementById('recordApiFilter').value;
+            const statusFilter = document.getElementById('recordStatusFilter').value;
+            
+            const items = document.querySelectorAll('.record-item');
+            items.forEach(item => {
+                const api = item.getAttribute('data-api');
+                const status = item.getAttribute('data-status');
+                
+                let show = true;
+                if (apiFilter !== 'all' && api !== apiFilter) show = false;
+                if (statusFilter !== 'all' && status !== statusFilter) show = false;
+                
+                item.style.display = show ? 'block' : 'none';
+            });
+        }
+        
+        // 导出调用记录
+        function exportRecords() {
+            if (callRecordsData.length === 0) {
+                showToast('暂无调用记录，无法导出', 'error');
+                return;
+            }
+            
+            let csv = '调用时间,接口名称,请求参数,状态码,状态,费用\n';
+            callRecordsData.forEach(record => {
+                csv += `2026-01-15 ${record.time},${record.apiName},${record.params},${record.statusCode},${record.status === 'success' ? '成功' : '失败'},${record.cost}\n`;
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `接口调用记录_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+            
+            showToast('导出成功', 'success');
+        }
+
+        // 隐藏申请弹窗
+        function hideApplyModal(event) {
+            if (!event || event.target === document.getElementById('applyModal')) {
+                document.getElementById('applyModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Toast提示函数
+        function showToast(message, type = 'success') {
+            // 移除已有的toast
+            const existingToast = document.querySelector('.toast-notification');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // 创建toast元素
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${type === 'success' ? '#52c41a' : '#f5222d'};
+                color: #fff;
+                padding: 12px 20px;
+                border-radius: 24px;
+                font-size: 14px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                animation: toastSlideIn 0.3s ease;
+                max-width: 80%;
+                word-break: break-all;
+            `;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            // 添加动画样式
+            if (!document.getElementById('toastAnimation')) {
+                const style = document.createElement('style');
+                style.id = 'toastAnimation';
+                style.textContent = `
+                    @keyframes toastSlideIn {
+                        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    }
+                    @keyframes toastSlideOut {
+                        from { opacity: 1; transform: translateX(-50%) translateY(0); }
+                        to { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(toast);
+
+            // 3秒后自动移除
+            setTimeout(() => {
+                toast.style.animation = 'toastSlideOut 0.3s ease forwards';
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        // 显示联系客服弹窗
+        function showContactModal() {
+            document.getElementById('contactModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 隐藏联系客服弹窗
+        function hideContactModal(event) {
+            if (!event || event.target === document.getElementById('contactModal')) {
+                document.getElementById('contactModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // ===== 我的接口功能 - 同步PC端 =====
+        
+        // 模拟数据
+        let myApisData = [];
+        let accountBalance = 12580.50;
+        let monthlyCallsCount = 45230;
+        let monthlyCostAmount = 423.50;
+        let monthlyCallsTrend = '+12.5%';
+        let monthlyCostTrend = '+8.3%';
+        let totalCallsCount = 128560;
+        let apiKey = 'bidi_ak_2vN8xK3mP9qR5sT7uW4yZ6aB1cD8eF0gH4iJ7kL0mN3oP6qR9sTuVxYz';
+        
+        // 充值记录数据
+        let rechargeRecords = [
+            { date: '2026-01-15 14:32:18', orderNo: 'REC202601150001', package: '标准包', method: '微信支付', payAmount: 1000, giftAmount: 200, totalAmount: 1200 },
+            { date: '2026-01-10 09:15:42', orderNo: 'REC202601100002', package: '基础包', method: '支付宝', payAmount: 500, giftAmount: 50, totalAmount: 550 }
+        ];
+        
+        // 模拟调用记录数据
+        const callRecordsData = [
+            { time: '10:23:05', apiName: '招标公告列表查询', params: 'keyword=建筑&page=1', status: 'success', statusCode: '200', duration: '45ms', cost: '¥0.05' },
+            { time: '10:22:18', apiName: '招标公告详情查询', params: 'id=ZB20250115001', status: 'success', statusCode: '200', duration: '120ms', cost: '¥0.25' },
+            { time: '10:20:45', apiName: '企业详情查询', params: 'companyId=91310000', status: 'fail', statusCode: '500', duration: '2000ms', cost: '-' },
+            { time: '10:18:32', apiName: '中标公告列表查询', params: 'keyword=软件&date=2026-01', status: 'success', statusCode: '200', duration: '38ms', cost: '¥0.05' },
+            { time: '10:15:10', apiName: '企业工商信息查询', params: 'companyName=阿里巴巴', status: 'success', statusCode: '200', duration: '65ms', cost: '¥0.05' },
+            { time: '10:12:55', apiName: '司法风险查询', params: 'companyId=913100001', status: 'success', statusCode: '200', duration: '82ms', cost: '¥0.10' }
+        ];
+        
+        // 模拟接口使用数据
+        const usageData = {
+            'IC-001': { month: 1250, total: 8560, price: 0.05 },
+            'IC-002': { month: 890, total: 6230, price: 0.05 },
+            'IC-003': { month: 560, total: 4120, price: 0.10 },
+            'IC-004': { month: 430, total: 3890, price: 0.05 },
+            'IC-005': { month: 320, total: 2150, price: 0.05 },
+            'IC-006': { month: 280, total: 1980, price: 0.10 },
+            'JU-001': { month: 210, total: 1560, price: 0.10 },
+            'JU-002': { month: 180, total: 1340, price: 0.10 },
+            'IP-001': { month: 150, total: 1120, price: 0.25 },
+            'IP-002': { month: 120, total: 980, price: 0.25 }
+        };
+        
+        // 显示我的接口页面
+        function showMyApisPage() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('categorySection').style.display = 'none';
+            document.getElementById('myApisPage').style.display = 'block';
+            document.getElementById('headerTitle').textContent = '我的接口';
+            document.getElementById('headerBack').style.opacity = '1';
+            document.getElementById('headerBack').style.pointerEvents = 'auto';
+            document.getElementById('headerMyApis').style.display = 'none';
+            
+            renderMyApisPage();
+        }
+        
+        // 返回首页
+        function goBack() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('searchSection').style.display = 'block';
+            document.getElementById('categorySection').style.display = 'block';
+            document.getElementById('myApisPage').style.display = 'none';
+            document.getElementById('headerTitle').textContent = 'API接口服务';
+            document.getElementById('headerBack').style.opacity = '0';
+            document.getElementById('headerBack').style.pointerEvents = 'none';
+            document.getElementById('headerMyApis').style.display = 'flex';
+        }
+        
+        // 渲染我的接口页面
+        function renderMyApisPage() {
+            // 更新统计数据
+            document.getElementById('balanceAmount').textContent = '¥' + accountBalance.toFixed(2);
+            document.getElementById('myApiCount').textContent = myApisData.length;
+            document.getElementById('monthlyCalls').textContent = monthlyCallsCount.toLocaleString();
+            document.getElementById('monthlyCost').textContent = '¥' + monthlyCostAmount.toFixed(2);
+            document.getElementById('monthlyCallsTrend').textContent = '较上月 ' + monthlyCallsTrend;
+            document.getElementById('monthlyCostTrend').textContent = '较上月 ' + monthlyCostTrend;
+            document.getElementById('totalCalls').textContent = totalCallsCount.toLocaleString();
+            
+            // 更新API密钥
+            document.getElementById('apiKeyText').textContent = apiKey;
+            
+            // 渲染接口列表
+            renderMyApisTable();
+            
+            // 渲染调用记录
+            renderRecordsTable();
+        }
+        
+        // ===== 充值功能 =====
+        let selectedRechargePackage = { pay: 1000, get: 1200 };
+        let currentPaymentMethod = 'wechat';
+        
+        // 显示充值弹窗
+        function showRechargeModal() {
+            document.getElementById('rechargeModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            // 默认选中1000元套餐
+            selectRechargePackage(1000, 1200);
+        }
+        
+        // 隐藏充值弹窗
+        function hideRechargeModal(event) {
+            if (!event || event.target === document.getElementById('rechargeModal')) {
+                document.getElementById('rechargeModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 选择充值套餐
+        function selectRechargePackage(payAmount, getAmount) {
+            selectedRechargePackage = { pay: payAmount, get: getAmount };
+            
+            // 更新UI
+            document.querySelectorAll('.recharge-package').forEach(pkg => {
+                pkg.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // 更新金额显示
+            document.getElementById('rechargePayAmount').textContent = '¥' + payAmount.toLocaleString();
+            
+            // 清空自定义金额
+            document.getElementById('customRechargeAmount').value = '';
+        }
+        
+        // 自定义金额变化
+        function onCustomAmountChange(value) {
+            const amount = parseInt(value) || 0;
+            if (amount >= 10) {
+                selectedRechargePackage = { pay: amount, get: amount };
+                document.getElementById('rechargePayAmount').textContent = '¥' + amount.toLocaleString();
+                
+                // 移除套餐选中状态
+                document.querySelectorAll('.recharge-package').forEach(pkg => {
+                    pkg.classList.remove('selected');
+                });
+            }
+        }
+        
+        // 切换支付方式
+        function switchRechargePayment(type) {
+            currentPaymentMethod = type;
+            
+            document.querySelectorAll('.recharge-payment-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            document.querySelector(`.recharge-payment-option[data-type="${type}"]`).classList.add('active');
+        }
+        
+        // 确认充值
+        function confirmRecharge() {
+            const amount = selectedRechargePackage.pay;
+            if (amount < 10) {
+                showToast('最小充值金额为10元', 'error');
+                return;
+            }
+            
+            // 模拟支付成功
+            simulatePaySuccess(selectedRechargePackage.pay, selectedRechargePackage.get);
+        }
+        
+        // 模拟支付成功
+        function simulatePaySuccess(payAmount, getAmount) {
+            // 关闭充值弹窗
+            hideRechargeModal();
+            
+            // 更新余额
+            accountBalance += getAmount;
+            document.getElementById('balanceAmount').textContent = '¥' + accountBalance.toFixed(2);
+            
+            // 添加到充值记录
+            const record = {
+                date: new Date().toLocaleString('zh-CN'),
+                orderNo: 'REC' + new Date().getTime(),
+                package: payAmount >= 1000 ? '标准包' : '基础包',
+                method: currentPaymentMethod === 'wechat' ? '微信支付' : '支付宝',
+                payAmount: payAmount,
+                giftAmount: getAmount - payAmount,
+                totalAmount: getAmount
+            };
+            rechargeRecords.unshift(record);
+            
+            // 设置成功信息
+            document.getElementById('successRechargeAmount').textContent = '¥' + getAmount.toLocaleString();
+            document.getElementById('successPayAmount').textContent = '¥' + payAmount.toLocaleString();
+            document.getElementById('successGiftAmount').textContent = '+¥' + (getAmount - payAmount).toLocaleString();
+            document.getElementById('successTotalAmount').textContent = '¥' + getAmount.toLocaleString();
+            
+            // 显示成功弹窗
+            document.getElementById('paymentSuccessModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            showToast('充值成功！', 'success');
+        }
+        
+        // 隐藏支付成功弹窗
+        function hidePaymentSuccessModal(event) {
+            if (!event || event.target === document.getElementById('paymentSuccessModal')) {
+                document.getElementById('paymentSuccessModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 关闭支付成功弹窗
+        function closePaymentSuccess() {
+            hidePaymentSuccessModal();
+        }
+        
+        // 显示充值记录
+        function showRechargeRecords() {
+            document.getElementById('rechargeRecordsModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            renderRechargeRecords();
+        }
+        
+        // 隐藏充值记录弹窗
+        function hideRechargeRecordsModal(event) {
+            if (!event || event.target === document.getElementById('rechargeRecordsModal')) {
+                document.getElementById('rechargeRecordsModal').classList.remove('show');
+                document.body.style.overflow = '';
+            }
+        }
+        
+        // 渲染充值记录
+        function renderRechargeRecords() {
+            const container = document.getElementById('rechargeRecordsList');
+            
+            if (rechargeRecords.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">暂无充值记录</div>';
+                return;
+            }
+            
+            let html = '';
+            rechargeRecords.forEach(record => {
+                html += `
+                    <div class="recharge-record-item">
+                        <div class="recharge-record-header">
+                            <span class="recharge-record-date">${record.date}</span>
+                            <span class="recharge-record-amount">¥${record.payAmount.toLocaleString()}</span>
+                        </div>
+                        <div class="recharge-record-details">
+                            <div class="recharge-record-detail">
+                                <span>单号：</span>${record.orderNo}
+                            </div>
+                            <div class="recharge-record-detail">
+                                <span>套餐：</span>${record.package}
+                            </div>
+                            <div class="recharge-record-detail">
+                                <span>支付：</span>${record.method}
+                            </div>
+                            <div class="recharge-record-detail gift">
+                                <span>赠送：</span>+¥${record.giftAmount.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 渲染我的接口卡片列表
+        function renderMyApisTable() {
+            const cardList = document.getElementById('myApiCardList');
+            const emptyState = document.getElementById('myApisEmpty');
+            
+            if (myApisData.length === 0) {
+                cardList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            cardList.style.display = 'block';
+            emptyState.style.display = 'none';
+            
+            let html = '';
+            myApisData.forEach((api, index) => {
+                const usage = usageData[api.id] || { month: Math.floor(Math.random() * 500) + 50, total: Math.floor(Math.random() * 5000) + 500, price: api.price || 0.05 };
+                const applyTime = new Date(api.applyTime);
+                const timeStr = applyTime.toLocaleString('zh-CN', { 
+                    year: 'numeric', month: '2-digit', day: '2-digit', 
+                    hour: '2-digit', minute: '2-digit', second: '2-digit' 
+                });
+                
+                html += `
+                    <div class="myapi-card">
+                        <div class="myapi-card-header">
+                            <div class="myapi-card-icon">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div class="myapi-card-title">
+                                <div class="myapi-card-name">${api.name}</div>
+                                <div class="myapi-card-id">接口ID：${api.id}</div>
+                            </div>
+                        </div>
+                        <div class="myapi-card-info">
+                            <div class="myapi-card-info-item">
+                                <span class="myapi-card-info-label">接口单价：</span>
+                                <span class="myapi-card-info-value price">${api.price || '0.05'}元</span>
+                            </div>
+                            <div class="myapi-card-info-item">
+                                <span class="myapi-card-info-label">调用量：</span>
+                                <span class="myapi-card-info-value">${api.callCount || 256}次</span>
+                            </div>
+                        </div>
+                        <div class="myapi-card-actions">
+                            <button class="myapi-card-btn close" onclick="closeMyApi('${api.id}')">关闭</button>
+                            <button class="myapi-card-btn test" onclick="testMyApi('${api.id}')">测试接口</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            cardList.innerHTML = html;
+        }
+        
+        // 渲染调用记录表格
+        function renderRecordsTable() {
+            const tableBody = document.getElementById('recordsTableBody');
+            
+            let html = '';
+            callRecordsData.forEach(record => {
+                html += `
+                    <tr>
+                        <td>${record.time}</td>
+                        <td>${record.apiName}</td>
+                        <td>${record.cost}</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+        
+        // 查看我的接口详情
+        function viewMyApiDetail(apiId) {
+            const api = myApisData.find(a => a.id === apiId);
+            if (!api) return;
+            
+            document.getElementById('detailName').textContent = api.name;
+            document.getElementById('detailId').textContent = api.id;
+            document.getElementById('detailCategory').textContent = api.categoryName || '--';
+            document.getElementById('detailMethod').textContent = api.method;
+            document.getElementById('detailDesc').textContent = api.desc;
+            document.getElementById('detailPrice').textContent = (api.price || '0.05') + '元/次';
+            document.getElementById('detailPath').textContent = api.path;
+            
+            // 已申请的接口显示测试和联系客服按钮
+            const detailActions = document.querySelector('.detail-actions');
+            detailActions.innerHTML = `
+                <button class="detail-btn cancel" onclick="hideDetailModal()">关闭</button>
+                <button class="detail-btn apply" onclick="testMyApi('${apiId}')">在线测试</button>
+            `;
+            
+            document.getElementById('detailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 测试接口
+        function testMyApi(apiId) {
+            const api = myApisData.find(a => a.id === apiId);
+            if (!api) return;
+            
+            currentTestApi = api;
+            document.getElementById('testModalSubtitle').textContent = api.name;
+            document.getElementById('testModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 关闭接口
+        function closeMyApi(apiId) {
+            const api = myApisData.find(a => a.id === apiId);
+            if (!api) return;
+            
+            if (confirm(`确定要关闭接口「${api.name}」吗？关闭后将无法调用该接口。`)) {
+                api.status = 'disabled';
+                renderMyApisTable();
+                showToast('接口已关闭', 'success');
+            }
+        }
+        
+        // 导出我的接口
+        function exportMyApis() {
+            if (myApisData.length === 0) {
+                showToast('暂无已申请的接口，无法导出', 'error');
+                return;
+            }
+            
+            // 构建CSV内容
+            let csvContent = '\uFEFF';
+            csvContent += '接口名称,接口ID,请求方法,接口路径,单价(元/次),状态\n';
+            
+            myApisData.forEach(api => {
+                const usage = usageData[api.id] || { price: 0.05 };
+                csvContent += `${api.name},${api.id},${api.method},${api.path},${usage.price},${api.status === 'active' ? '正常' : '已停用'}\n`;
+            });
+            
+            // 创建下载链接
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `我的接口_${new Date().toLocaleDateString()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('导出成功！', 'success');
+        }
+        
+        // 复制API密钥
+        function copyApiKey() {
+            navigator.clipboard.writeText(apiKey).then(() => {
+                showCopyKeyModal();
+            }).catch(() => {
+                showToast('复制失败，请手动复制', 'error');
+            });
+        }
+        
+        // 显示复制成功提示弹窗 - 与PC端一致
+        function showCopyKeyModal() {
+            // 移除已有的弹窗
+            const existingModal = document.getElementById('copyKeyModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.id = 'copyKeyModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: #fff; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 20px;">
+                    <div style="padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <div style="width: 40px; height: 40px; background: #52c41a; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check" style="color: #fff; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: 600; color: #333;">API密钥复制成功</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">密钥已保存到剪贴板</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 600; color: #52c41a; margin-bottom: 8px;">
+                                <i class="fas fa-lightbulb" style="margin-right: 6px;"></i>下一步操作指引
+                            </div>
+                            <div style="font-size: 12px; color: #333; line-height: 1.8;">
+                                <div><strong>1. 正式调用</strong> - 在您的系统中使用密钥调用API</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                            <button onclick="closeCopyKeyModal()" style="padding: 8px 20px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; color: #333;">知道了</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // 点击遮罩关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeCopyKeyModal();
+                }
+            });
+        }
+
+        // 关闭复制密钥提示弹窗
+        function closeCopyKeyModal() {
+            const modal = document.getElementById('copyKeyModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        // 重置API密钥
+        function resetApiKey() {
+            if (confirm('确定要重置API密钥吗？重置后旧密钥将立即失效。')) {
+                apiKey = 'bidi_ak_' + Math.random().toString(36).substring(2, 34);
+                document.getElementById('apiKeyText').textContent = apiKey;
+                showToast('API密钥已重置', 'success');
+            }
+        }
+        
+        // 提交申请 - 同步PC端确认购买逻辑
+        function submitApply() {
+            const usageScenario = document.getElementById('usageScenario').value.trim();
+
+            if (!usageScenario) {
+                showToast('请输入使用场景', 'error');
+                return;
+            }
+            
+            // 检查余额是否足够（模拟）
+            const price = parseFloat(currentApiForApply?.price || '0');
+            if (accountBalance < price) {
+                showToast('账户余额不足，请先充值', 'error');
+                return;
+            }
+            
+            // 保存申请信息到已申请列表
+            if (currentApiForApply) {
+                const newApi = {
+                    ...currentApiForApply,
+                    usageScenario: usageScenario,
+                    status: 'active',
+                    applyTime: new Date().toISOString(),
+                    monthlyCalls: 0,
+                    totalCalls: 0
+                };
+                myApisData.push(newApi);
+                
+                // 更新统计数据
+                monthlyCallsCount += Math.floor(Math.random() * 100);
+                totalCallsCount += Math.floor(Math.random() * 100);
+            }
+
+            // 显示成功提示
+            showToast('接口购买成功！已添加到我的接口', 'success');
+            hideApplyModal();
+            document.getElementById('applyForm').reset();
+        }
+    </script>
+</body>
+</html>
