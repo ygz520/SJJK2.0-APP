@@ -2657,7 +2657,7 @@
                     </div>
                     <div class="recharge-modal-title">
                         <h3>充值中心</h3>
-                        <p>选择适合您的套餐</p>
+                        <p>选择适合您的套餐，扫码完成支付</p>
                     </div>
                     <button class="recharge-modal-close" onclick="hideRechargeModal()">
                         <i class="fas fa-times"></i>
@@ -2789,11 +2789,11 @@
         // API分类数据
         const categories = [
             { id: 'all', name: '全部接口', count: 79 },
+            { id: 'zhaotoubiao', name: '招投标', count: 5 },
             { id: 'gongshang', name: '工商信息', count: 15 },
             { id: 'sifa', name: '司法风险', count: 10 },
             { id: 'zhishi', name: '知识产权', count: 5 },
             { id: 'jingying', name: '经营信息', count: 8 },
-            { id: 'zhaotoubiao', name: '招投标', count: 5 },
             { id: 'jingyingfengxian', name: '经营风险', count: 5 },
             { id: 'qiyefazhan', name: '企业发展', count: 5 },
             { id: 'shangshigongsi', name: '上市公司', count: 5 },
@@ -2990,11 +2990,16 @@
             let apis = [];
 
             if (currentCategory === 'all') {
-                Object.keys(apiData).forEach(catId => {
-                    const cat = categories.find(c => c.id === catId);
-                    apiData[catId].forEach(api => {
-                        apis.push({ ...api, categoryId: catId, categoryName: cat ? cat.name : '' });
-                    });
+                // 定义分类显示顺序，招投标放在最前面
+                const categoryOrder = ['zhaotoubiao', 'gongshang', 'sifa', 'zhishi', 'jingying', 'jingyingfengxian', 'qiyefazhan', 'shangshigongsi', 'jianzhushichang', 'xinyongzhongguo', 'teshuzhuti', 'tongyong'];
+                
+                categoryOrder.forEach(catId => {
+                    if (apiData[catId]) {
+                        const cat = categories.find(c => c.id === catId);
+                        apiData[catId].forEach(api => {
+                            apis.push({ ...api, categoryId: catId, categoryName: cat ? cat.name : '' });
+                        });
+                    }
                 });
             } else {
                 const cat = categories.find(c => c.id === currentCategory);
@@ -3036,7 +3041,6 @@
                             <div class="api-desc">${api.desc}</div>
                             <div class="api-footer">
                                 <div class="api-price-display">
-                                    <span class="api-price-label">单价：</span>
                                     <span class="api-price-value">${api.price || '0.05'}元/次</span>
                                 </div>
                                 <div class="api-actions">
@@ -3128,7 +3132,6 @@
                             <div class="api-desc">${highlightedDesc}</div>
                             <div class="api-footer">
                                 <div class="api-price-display">
-                                    <span class="api-price-label">单价：</span>
                                     <span class="api-price-value">${api.price || '0.05'}元/次</span>
                                 </div>
                                 <div class="api-actions">
@@ -3950,9 +3953,6 @@ axios.get(url, { params, headers })
                                 <span>单号：</span>${record.orderNo}
                             </div>
                             <div class="recharge-record-detail">
-                                <span>套餐：</span>${record.package}
-                            </div>
-                            <div class="recharge-record-detail">
                                 <span>支付：</span>${record.method}
                             </div>
                             <div class="recharge-record-detail gift">
@@ -4002,11 +4002,9 @@ axios.get(url, { params, headers })
                         </div>
                         <div class="myapi-card-info">
                             <div class="myapi-card-info-item">
-                                <span class="myapi-card-info-label">接口单价：</span>
-                                <span class="myapi-card-info-value price">${api.price || '0.05'}元</span>
+                                <span class="myapi-card-info-value price">${api.price || '0.05'}元/次</span>
                             </div>
                             <div class="myapi-card-info-item">
-                                <span class="myapi-card-info-label">调用量：</span>
                                 <span class="myapi-card-info-value">${api.callCount || 256}次</span>
                             </div>
                         </div>
@@ -4198,11 +4196,176 @@ axios.get(url, { params, headers })
         
         // 重置API密钥
         function resetApiKey() {
-            if (confirm('确定要重置API密钥吗？重置后旧密钥将立即失效。')) {
-                apiKey = 'bidi_ak_' + Math.random().toString(36).substring(2, 34);
-                document.getElementById('apiKeyText').textContent = apiKey;
-                showToast('API密钥已重置', 'success');
+            showResetKeyConfirmModal();
+        }
+
+        // 显示重置密钥确认弹窗 - 与PC端一致
+        function showResetKeyConfirmModal() {
+            // 移除已有的弹窗
+            const existingModal = document.getElementById('resetKeyConfirmModal');
+            if (existingModal) {
+                existingModal.remove();
             }
+
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.id = 'resetKeyConfirmModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: #fff; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 20px;">
+                    <div style="padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <div style="width: 40px; height: 40px; background: #faad14; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exclamation-triangle" style="color: #fff; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: 600; color: #333;">重置API密钥</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">原密钥将立即失效</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: 600; color: #faad14; margin-bottom: 8px;">
+                                <i class="fas fa-info-circle" style="margin-right: 6px;"></i>影响说明
+                            </div>
+                            <div style="font-size: 12px; color: #333; line-height: 1.8;">
+                                <div style="margin-bottom: 4px;">• 正在使用原密钥的API调用将立即<strong style="color: #f5222d;">失效</strong></div>
+                                <div style="margin-bottom: 4px;">• 需要更新所有使用原密钥的系统配置</div>
+                                <div>• 建议在业务低峰期操作</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                            <button onclick="closeResetKeyConfirmModal()" style="padding: 8px 16px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; color: #333;">取消</button>
+                            <button onclick="confirmResetKey()" style="padding: 8px 16px; border: none; background: #1890ff; border-radius: 4px; cursor: pointer; font-size: 14px; color: #fff;">
+                                <i class="fas fa-redo" style="margin-right: 4px;"></i>确认重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // 点击遮罩关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeResetKeyConfirmModal();
+                }
+            });
+        }
+
+        // 关闭重置密钥确认弹窗
+        function closeResetKeyConfirmModal() {
+            const modal = document.getElementById('resetKeyConfirmModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 确认重置密钥
+        function confirmResetKey() {
+            closeResetKeyConfirmModal();
+            
+            // 生成新密钥
+            apiKey = 'bidi_ak_' + Math.random().toString(36).substring(2, 34);
+            
+            // 更新页面上的密钥显示
+            document.getElementById('apiKeyText').textContent = apiKey;
+            
+            // 显示重置成功弹窗
+            showResetKeySuccessModal();
+        }
+
+        // 显示重置成功弹窗
+        function showResetKeySuccessModal() {
+            // 移除已有的弹窗
+            const existingModal = document.getElementById('resetKeySuccessModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // 创建弹窗
+            const modal = document.createElement('div');
+            modal.id = 'resetKeySuccessModal';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: #fff; border-radius: 12px; width: 320px; max-width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin: 20px;">
+                    <div style="padding: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <div style="width: 40px; height: 40px; background: #52c41a; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-check" style="color: #fff; font-size: 20px;"></i>
+                            </div>
+                            <div>
+                                <div style="font-size: 16px; font-weight: 600; color: #333;">密钥重置成功</div>
+                                <div style="font-size: 13px; color: #666; margin-top: 4px;">请妥善保管新密钥</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; padding: 12px; margin-bottom: 16px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">新API密钥：</div>
+                            <div id="newApiKeyDisplay" style="font-size: 13px; color: #333; font-family: monospace; word-break: break-all; background: #fff; padding: 8px; border-radius: 4px; border: 1px solid #e8e8e8;">${apiKey}</div>
+                        </div>
+
+                        <div style="display: flex; gap: 12px;">
+                            <button onclick="closeResetKeySuccessModal()" style="flex: 1; padding: 10px; border: 1px solid #d9d9d9; background: #fff; border-radius: 4px; cursor: pointer; font-size: 14px; color: #333;">关闭</button>
+                            <button onclick="copyNewApiKey()" style="flex: 1; padding: 10px; border: none; background: #1890ff; border-radius: 4px; cursor: pointer; font-size: 14px; color: #fff;">
+                                <i class="fas fa-copy" style="margin-right: 4px;"></i>复制密钥
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // 点击遮罩关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeResetKeySuccessModal();
+                }
+            });
+        }
+
+        // 关闭重置成功弹窗
+        function closeResetKeySuccessModal() {
+            const modal = document.getElementById('resetKeySuccessModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+
+        // 复制新API密钥
+        function copyNewApiKey() {
+            navigator.clipboard.writeText(apiKey).then(() => {
+                showToast('新密钥已复制到剪贴板', 'success');
+            }).catch(() => {
+                showToast('复制失败，请手动复制', 'error');
+            });
         }
         
         // 提交申请 - 同步PC端确认购买逻辑
