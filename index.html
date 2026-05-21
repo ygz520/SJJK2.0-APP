@@ -423,7 +423,7 @@
         .stat-card-mobile {
             background: #fff;
             border-radius: 12px;
-            padding: 16px;
+            padding: 8px 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         
@@ -485,7 +485,7 @@
         .api-key-card {
             background: #fff;
             border-radius: 12px;
-            padding: 16px;
+            padding: 12px 14px;
             margin-bottom: 16px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
@@ -2308,7 +2308,7 @@
                         <i class="fas fa-wallet"></i>
                     </div>
                 </div>
-                <div class="stat-value-mobile" id="balanceAmount">¥0.00</div>
+                <div class="stat-value-mobile"><span id="balanceAmount">¥0.00</span> <span style="font-size: 12px; color: #999;">元</span></div>
                 <div class="stat-actions-mobile">
                     <span onclick="showRechargeModal()" style="color: #1890ff;">充值</span>
                 </div>
@@ -2330,7 +2330,7 @@
                         <i class="fas fa-bolt"></i>
                     </div>
                 </div>
-                <div class="stat-value-mobile" id="monthlyCalls">0</div>
+                <div class="stat-value-mobile"><span id="monthlyCalls">0</span> <span style="font-size: 12px; color: #999;">次</span></div>
                 <div class="stat-trend-mobile" id="monthlyCallsTrend">较上月 --</div>
             </div>
             <div class="stat-card-mobile">
@@ -2340,7 +2340,7 @@
                         <i class="fas fa-yen-sign"></i>
                     </div>
                 </div>
-                <div class="stat-value-mobile" id="monthlyCost">¥0.00</div>
+                <div class="stat-value-mobile"><span id="monthlyCost">¥0.00</span> <span style="font-size: 12px; color: #999;">元</span></div>
                 <div class="stat-trend-mobile" id="monthlyCostTrend">较上月 --</div>
             </div>
         </div>
@@ -2374,6 +2374,12 @@
                 <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 复制密钥</span>
                 <i class="fas fa-angle-right"></i>
                 <span><i class="fas fa-check-circle" style="color: #52c41a;"></i> 正式调用</span>
+            </div>
+            <div style="background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px; padding: 10px 12px; margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-headset" style="color: #52c41a; font-size: 14px;"></i>
+                <div style="font-size: 11px; color: #333; line-height: 1.5;">
+                    专属人工服务：接口使用遇到问题？请联系客服经理 <span style="color: #1890ff; font-weight: 600;">139111878573</span>，我们将为您提供一对一技术支持
+                </div>
             </div>
         </div>
 
@@ -3699,6 +3705,13 @@
                             </div>
                             <div style="background: #fff; border-radius: 4px; padding: 8px; text-align: center;">
                                 <img src="images/recharge-guide.png" alt="PC端充值入口指引" style="max-width: 100%; height: auto; border-radius: 4px; display: block;">
+                            </div>
+                        </div>
+
+                        <div style="background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px; padding: 12px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-phone-alt" style="color: #1890ff; font-size: 14px;"></i>
+                            <div style="font-size: 12px; color: #333; line-height: 1.6;">
+                                如需充值或有其他需求，也可直接联系客服经理 <span style="color: #1890ff; font-weight: 600;">139111878573</span> 协助办理
                             </div>
                         </div>
 
